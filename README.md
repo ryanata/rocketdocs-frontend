@@ -1,1 +1,2 @@
 # rocketdocs-frontend
+Rocketdocs is a documentation generator for codebases. It is designed to be used with the [Rocketdocs backend](https://github.com/KTujjar/rocketdocs). It is currently in development and is not ready for use.
