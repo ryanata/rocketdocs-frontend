@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -6,7 +6,6 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
     $convertFromMarkdownString,
-    $convertToMarkdownString,
     TRANSFORMERS,
 } from '@lexical/markdown';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
