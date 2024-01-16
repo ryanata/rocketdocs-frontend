@@ -24,13 +24,15 @@ type LexicalEditorProps = {
 };
 
 const LexicalEditor = (props: LexicalEditorProps) => {
+  const [isEditorVisible, setEditorVisible] = useState<boolean>(true);
+
   return (
     <LexicalComposer initialConfig={props.config}>
         <div className="flex flex-col gap-4">
             <div className="inline-flex justify-end p-4">
-                <ToggleEditable />
+                <ToggleEditable isEditorVisible={isEditorVisible} setEditorVisible={setEditorVisible} />
             </div>
-            <Toolbar />
+            {isEditorVisible && <Toolbar />}
             <RichTextPlugin
             contentEditable={<ContentEditable />}
             placeholder={<Placeholder />}
@@ -43,8 +45,7 @@ const LexicalEditor = (props: LexicalEditorProps) => {
   );
 }
 
-const ToggleEditable = () => {
-    const [isEditorVisible, setEditorVisible] = useState<boolean>(true);
+const ToggleEditable = ({ isEditorVisible, setEditorVisible }: { isEditorVisible: boolean, setEditorVisible: React.Dispatch<React.SetStateAction<boolean>> }) => {
     const [editor] = useLexicalComposerContext();
 
     const toggleEditing = (status: boolean) => {
