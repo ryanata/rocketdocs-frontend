@@ -8,6 +8,15 @@ import {
     $convertFromMarkdownString,
     TRANSFORMERS,
 } from '@lexical/markdown';
+import { HeadingNode, QuoteNode } from '@lexical/rich-text'
+import { LinkNode } from '@lexical/link'
+import { ListItemNode, ListNode } from '@lexical/list'
+import { MarkNode } from '@lexical/mark'
+import {HorizontalRuleNode} from '@lexical/react/LexicalHorizontalRuleNode';
+import { CodeNode } from '@lexical/code';
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
+import Toolbar from '@/plugins/toolbar/Toolbar';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 
 type LexicalEditorProps = {
@@ -15,24 +24,28 @@ type LexicalEditorProps = {
 };
 
 const LexicalEditor = (props: LexicalEditorProps) => {
+  const [isEditorVisible, setEditorVisible] = useState<boolean>(true);
+
   return (
     <LexicalComposer initialConfig={props.config}>
         <div className="flex flex-col gap-4">
             <div className="inline-flex justify-end p-4">
-                <ToggleEditable />
+                <ToggleEditable isEditorVisible={isEditorVisible} setEditorVisible={setEditorVisible} />
             </div>
+            {isEditorVisible && <Toolbar />}
             <RichTextPlugin
             contentEditable={<ContentEditable />}
             placeholder={<Placeholder />}
             ErrorBoundary={LexicalErrorBoundary}
             />
+            <HistoryPlugin />
+            <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
         </div>
     </LexicalComposer>
   );
 }
 
-const ToggleEditable = () => {
-    const [isEditorVisible, setEditorVisible] = useState<boolean>(true);
+const ToggleEditable = ({ isEditorVisible, setEditorVisible }: { isEditorVisible: boolean, setEditorVisible: React.Dispatch<React.SetStateAction<boolean>> }) => {
     const [editor] = useLexicalComposerContext();
 
     const toggleEditing = (status: boolean) => {
@@ -82,7 +95,17 @@ const Editor = ({ markdown }: EditorProps) => {
               strikethrough: 'line-through',
               underlineStrikethrough: 'underlined-line-through',
             },
+            heading: {
+              h1: 'text-4xl font-bold',
+              h2: 'text-3xl font-bold',
+              h3: 'text-2xl font-bold',
+              h4: 'text-xl font-bold',
+              h5: 'text-lg font-bold',
+              h6: 'text-base font-bold',
+            },
+            quote: 'border-l-4 border-slate-500 pl-4',
           },
+          nodes: [ HorizontalRuleNode, CodeNode, MarkNode, HeadingNode, QuoteNode, LinkNode, ListNode, ListItemNode],
           editorState: () => {
             console.log(markdown);
             if (markdown !== null) {
