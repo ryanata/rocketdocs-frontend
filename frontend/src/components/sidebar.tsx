@@ -15,7 +15,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedItem, setSelectedItem, classN
     };
     // TODO: Call API to get sidebar items
     const items: SidebarItem[] = [
-        { heading: "Getting Started", subitems: ["Introduction", "Installation", "Your first project"] }
+        { heading: "Documentation", subitems: [localStorage.getItem('rocketdocs_lastParam') ?? 'File Info'] },
     ];
 
     // Once we have the sidebar items, make the selected item the first subitem of the first heading
