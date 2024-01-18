@@ -37,20 +37,9 @@ const DocumentationPage: React.FC = () => {
         return <div>Loading...</div>;
     }
 
-    console.log(doc);
-
 
     const handleSetSelectedItem = (item: string | null) => {
         setSelectedItem(item);
-        // Additional logic or side effects can be added here
-        // Side effects can include calling an API to get the documentation for the selected item
-        
-        // TODO: Call API to get documentation for the selected item. For now, use random text
-        const randomDocumentation = `## Description:
-        This python script is a part of pygame library which provides camera functionality using different backends like OpenCV, VideoCapture etc. It has an AbstractCamera class defining the basic camera operations and different backends implementing these operations.`;
-        // setDocumentation(randomDocumentation);
-        console.log(randomDocumentation);
-        
         // Remove starting space
         const docsNoStartingSpace = doc?.content.replace(/^\s+/, '');
         // Remove starting spaces before headings
@@ -60,7 +49,7 @@ const DocumentationPage: React.FC = () => {
     
     return (
         <div style={{ display: 'grid', gridTemplateColumns: '20% 80%' }}>
-            <Sidebar selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem}/>
+            <Sidebar selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} fileUrl={doc?.github_url}/>
             <div>
                 <Editor markdown={documentation}/>
             </div>

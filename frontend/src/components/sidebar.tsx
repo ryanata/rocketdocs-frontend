@@ -5,17 +5,18 @@ import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 type SidebarProps = {
     selectedItem: string | null;
     setSelectedItem:(item: string | null) => void;
+    fileUrl: string;
     className?: string;
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ selectedItem, setSelectedItem, className }) => {
+const Sidebar: React.FC<SidebarProps> = ({ selectedItem, setSelectedItem, fileUrl, className }) => {
     type SidebarItem = {
         heading: string;
         subitems: string[];
     };
-    // TODO: Call API to get sidebar items
+    const fileName: RegExpMatchArray | null = fileUrl.match(/[^\/]+$/);
     const items: SidebarItem[] = [
-        { heading: "Documentation", subitems: [localStorage.getItem('rocketdocs_lastParam') ?? 'File Info'] },
+        { heading: "Documentation", subitems: [fileName ? fileName[0] : 'File Info'] },
     ];
 
     // Once we have the sidebar items, make the selected item the first subitem of the first heading

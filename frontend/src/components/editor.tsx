@@ -24,7 +24,7 @@ type LexicalEditorProps = {
 };
 
 const LexicalEditor = (props: LexicalEditorProps) => {
-  const [isEditorVisible, setEditorVisible] = useState<boolean>(true);
+  const [isEditorVisible, setEditorVisible] = useState<boolean>(false);
 
   return (
     <LexicalComposer initialConfig={props.config}>

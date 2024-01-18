@@ -27,13 +27,10 @@ const UploadPage: React.FC = () => {
                 throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
             }
             const data = await response.json();
-            console.log(data)
+            
             // Extract the id from the response data
             const { id } = data;
-            const matchResult = githubFileUrl.match(/[^\/]+$/);
-            const lastParam = matchResult ? matchResult[0] : null;
-            // Store last param in local storage
-            localStorage.setItem('rocketdocs_lastParam', lastParam || '');
+
             // Redirect to /docs/{id}
             navigate(`/docs/${id}`);
         } catch (error) {
