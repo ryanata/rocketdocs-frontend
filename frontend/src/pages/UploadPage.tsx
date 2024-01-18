@@ -12,7 +12,7 @@ const UploadPage: React.FC = () => {
 
     const mutation = useMutation(async () => {
         try {
-            const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs' : 'http://34.73.53.91/file-docs'}`, {
+            const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs' : 'https://notebites.app/file-docs'}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

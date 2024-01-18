@@ -12,13 +12,13 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://34.73.53.91",
+        target: "https://notebites.app",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "/file-docs": {
-        target: "http://34.73.53.91/file-docs",
+        target: "https://notebites.app/file-docs",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/file-docs/, ""),
