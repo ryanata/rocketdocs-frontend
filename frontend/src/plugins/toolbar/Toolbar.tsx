@@ -15,7 +15,7 @@ const Toolbar = () => {
             onClick={() => onClick(i.event)}
             variant="toolicon" 
             size="icon"
-            className={i.active ? "bg-blue-500 hover:none" : "bg-white hover:none"}
+            className={i.active ? "bg-light-purple hover:none" : "bg-white hover:none"}
           >
             {i.Icon}
           </Button>

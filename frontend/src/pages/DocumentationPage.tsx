@@ -1,25 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from 'react-query';
+import { useParams } from 'react-router-dom';
 import Sidebar from '@/components/sidebar';
 import Editor from '@/components/editor';
+
+// Define a fetch function
+const fetchDocs = async (id: string) => {
+    console.log(id);
+    const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs/' : 'http://34.73.53.91/file-docs/'}${id}`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+};
 
 const DocumentationPage: React.FC = () => {
     const [selectedItem, setSelectedItem] = useState<string | null>(null);
     const [documentation, setDocumentation] = useState<string | null>(null);
+    const { id } = useParams<{ id: string }>(); // Get the id from the URL
+    const { data: doc, error, isLoading, refetch } = useQuery(['fileDocs', id], () => fetchDocs(id || ''), { enabled: !!id, staleTime: Infinity });    
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            if (doc?.status === "STARTED") {
+                refetch();
+            }
+        }, 2000);
+
+        return () => clearInterval(intervalId); // Clean up on unmount
+    }, [doc, refetch]);
+    
+    if (error) {
+        return <div>Something went wrong...</div>;
+    }
+
+    if (isLoading || doc?.status === "STARTED") {
+        return <div>Loading...</div>;
+    }
 
 
     const handleSetSelectedItem = (item: string | null) => {
         setSelectedItem(item);
-        // Additional logic or side effects can be added here
-        // Side effects can include calling an API to get the documentation for the selected item
-        
-        // TODO: Call API to get documentation for the selected item. For now, use random text
-        const randomDocumentation = "# Test\n**Lorem ipsum dolor sit amet**, \nconsectetur adipiscing elit. Nulla nec nunc euismod, tincidunt libero vitae, aliquet quam. Suspendisse potenti. Nulla facilisi. Sed euismod, neque quis lacinia efficitur, massa nunc aliquet justo, ut luctus metus tortor ut quam. Vivamus euismod, dolor sed tincidunt porta, sapien risus tristique nisl, ut luctus nisi nibh ut libero. Donec id augue sit amet nunc varius luctus. Nulla facilisi. Sed id eros nec sapien lacinia tempus. Nullam auctor, nunc sed ultrices commodo, libero nunc pharetra sem, ut ultricies nisl sem vel tellus. Donec non nunc vel nisl congue ultricies. Nulla facilisi. Sed id eros nec sapien lacinia tempus. Nullam auctor, nunc sed ultrices commodo, libero nunc pharetra sem, ut ultricies nisl sem vel tellus. Donec non nunc vel nisl congue ultricies. ##mydocs";
-        setDocumentation(randomDocumentation);
+        // Remove starting space
+        const docsNoStartingSpace = doc?.content.replace(/^\s+/, '');
+        // Remove starting spaces before headings
+        const docNoSpacesBeforeHeadings = docsNoStartingSpace.replace(/\n\s*#/g, '\n#');
+        setDocumentation(docNoSpacesBeforeHeadings);
     };
     
     return (
         <div style={{ display: 'grid', gridTemplateColumns: '20% 80%' }}>
-            <Sidebar selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem}/>
+            <Sidebar selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} fileUrl={doc?.github_url}/>
             <div>
                 <Editor markdown={documentation}/>
             </div>

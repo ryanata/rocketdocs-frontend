@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { Icon } from '@iconify/react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -21,25 +22,27 @@ import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 
 type LexicalEditorProps = {
   config: Parameters<typeof LexicalComposer>['0']['initialConfig'];
+  isEditorVisible: boolean;
+  setEditorVisible: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const LexicalEditor = (props: LexicalEditorProps) => {
-  const [isEditorVisible, setEditorVisible] = useState<boolean>(true);
-
   return (
     <LexicalComposer initialConfig={props.config}>
         <div className="flex flex-col gap-4">
             <div className="inline-flex justify-end p-4">
-                <ToggleEditable isEditorVisible={isEditorVisible} setEditorVisible={setEditorVisible} />
+                <ToggleEditable isEditorVisible={props.isEditorVisible} setEditorVisible={props.setEditorVisible} />
             </div>
-            {isEditorVisible && <Toolbar />}
-            <RichTextPlugin
-            contentEditable={<ContentEditable />}
-            placeholder={<Placeholder />}
-            ErrorBoundary={LexicalErrorBoundary}
-            />
-            <HistoryPlugin />
-            <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+            {props.isEditorVisible && <Toolbar />}
+            <div className={`${props.isEditorVisible ? "border-stone-300 border-2 rounded" : ""}`}>
+              <RichTextPlugin
+                contentEditable={<ContentEditable />}
+                placeholder={<Placeholder />}
+                ErrorBoundary={LexicalErrorBoundary}
+              />
+              <HistoryPlugin />
+              <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+            </div>
         </div>
     </LexicalComposer>
   );
@@ -54,7 +57,14 @@ const ToggleEditable = ({ isEditorVisible, setEditorVisible }: { isEditorVisible
     }
 
     return (
-        <Button onClick={() => toggleEditing(!isEditorVisible)}>
+        <Button 
+          className={`${isEditorVisible ? 'bg-red-200 hover:bg-red-100' : ''}`} 
+          variant={isEditorVisible ? 'empty' : 'default'}
+          onClick={() => toggleEditing(!isEditorVisible)}
+        >
+            <div className='mr-2'>
+              {isEditorVisible ? <Icon icon="bx:hide" /> : <Icon icon="bx:edit" />}
+            </div>
             {isEditorVisible ? 'Hide' : 'Show'} Editor
         </Button>
     );
@@ -73,12 +83,12 @@ type EditorProps = {
 };
 
 const Editor = ({ markdown }: EditorProps) => {
-    console.log(markdown);
-    return (
+  const [isEditorVisible, setEditorVisible] = useState<boolean>(false);
+  return (
     <div
       id="editor-wrapper"
       className={
-        'relative prose prose-slate prose-p:my-0 prose-headings:mb-4 prose-headings:mt-2'
+        'relative mx-4 prose prose-slate prose-p:my-0 prose-headings:mb-4 prose-headings:mt-2'
       }
     >
       <LexicalEditor
@@ -86,7 +96,7 @@ const Editor = ({ markdown }: EditorProps) => {
         config={{
           namespace: 'lexical-editor',
           theme: {
-            root: 'p-4 border-slate-500 border-2 rounded h-full min-h-[200px] focus:outline-none focus-visible:border-black',
+            root: `p-4 h-full min-h-[200px] focus:outline-none`,
             link: 'cursor-pointer',
             text: {
               bold: 'font-semibold',
@@ -117,6 +127,8 @@ const Editor = ({ markdown }: EditorProps) => {
             console.log(error);
           },
         }}
+        isEditorVisible={isEditorVisible}
+        setEditorVisible={setEditorVisible}
       />
     </div>
   );

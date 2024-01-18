@@ -1,10 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useMutation } from 'react-query';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Icon } from '@iconify/react';
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
 const UploadPage: React.FC = () => {
+    const [githubFileUrl, setGithubFileUrl] = useState<string>("");
+    const navigate = useNavigate();
+
+    const mutation = useMutation(async () => {
+        try {
+            const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs' : 'http://34.73.53.91/file-docs'}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(
+                    {
+                        "github_url": githubFileUrl
+                    }
+                ),
+            });
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+            }
+            const data = await response.json();
+            
+            // Extract the id from the response data
+            const { id } = data;
+
+            // Redirect to /docs/{id}
+            navigate(`/docs/${id}`);
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    });
+
     return (
         <div className="h-screen">
             {/* Top half */}
@@ -34,15 +68,27 @@ const UploadPage: React.FC = () => {
                             <h1 className="text-4xl font-semibold mt-8">Import a Git <span className="line-through">repository</span> file</h1>
 
                             <div className="relative">
-                                <Input type="url" placeholder="Github file URL" className="pl-12 text-2xl h-12"/>
-                                <Icon icon="devicon:github" width={32} height={32} className="absolute left-3 top-1/2 transform -translate-y-1/2" />
+                            <Input
+                                type="url"
+                                placeholder="Github file URL"
+                                className="pl-12 text-2xl h-12"
+                                value={githubFileUrl}
+                                onChange={(e) => setGithubFileUrl(e.target.value)}
+                            />                                
+                            <Icon icon="devicon:github" width={32} height={32} className="absolute left-3 top-1/2 transform -translate-y-1/2" />
                             </div>
                         </div>
 
                         <div className="flex flex-col justify-end flex-grow">
                             <div className='flex justify-between gap-4'>
                                 <Button variant="outline" size="lg" className="text-md w-full">Start From Scratch</Button>
-                                <Button size="lg" className="text-md w-full">Create Documentation</Button>
+                                <Button 
+                                    size="lg" 
+                                    className="text-md w-full"
+                                    onClick={() => mutation.mutate()}
+                                >
+                                    Create Documentation
+                                </Button>
                             </div>
                         </div>
                     </div>
