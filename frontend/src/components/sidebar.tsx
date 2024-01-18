@@ -47,15 +47,15 @@ const SidebarItem: React.FC<{ label: string, isSelected: boolean, onSelected: ()
     const [isHovered, setIsHovered] = useState(false);
 
     return (
-                <div 
-                    className={`flex rounded-md px-4 ${(!isSelected) ? 'cursor-pointer' : ''} ${(isSelected || isHovered) ? 'bg-light-purple' : ''}`} 
-                    onClick={onSelected}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
-                >
-                    <div className="bg-primary" style={{ width: "2px" }}></div>
-                    <p className="ml-4 text-gray-500 text-2xl py-2 truncate max-w-fit" title={label}>{label}</p>
-                </div>
+        <div 
+            className={`flex rounded-md px-4 ${(!isSelected) ? 'cursor-pointer' : ''} ${(isSelected || isHovered) ? 'bg-light-purple' : ''}`} 
+            onClick={onSelected}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <div className="bg-primary" style={{ width: "2px" }}></div>
+            <p className="ml-4 text-gray-500 text-2xl py-2 truncate max-w-fit" title={label}>{label}</p>
+        </div>
     )
 }
 
