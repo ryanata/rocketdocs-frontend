@@ -7,7 +7,7 @@ import Editor from '@/components/editor';
 // Define a fetch function
 const fetchDocs = async (id: string) => {
     console.log(id);
-    const response = await fetch(`/file-docs/${id}`);
+    const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs/' : 'http://34.73.53.91/file-docs/'}${id}`);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
