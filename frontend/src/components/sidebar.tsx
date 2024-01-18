@@ -54,7 +54,7 @@ const SidebarItem: React.FC<{ label: string, isSelected: boolean, onSelected: ()
             onMouseLeave={() => setIsHovered(false)}
         >
             <div className="bg-primary" style={{ width: "2px" }}></div>
-            <p className="ml-4 text-gray-500 text-2xl py-2">{label}</p>
+            <p className="ml-4 text-gray-500 text-2xl py-2 truncate max-w-fit" title={label}>{label}</p>
         </div>
     )
 }
