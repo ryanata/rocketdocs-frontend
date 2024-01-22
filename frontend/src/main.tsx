@@ -2,6 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import UploadPage from './pages/UploadPage';
 import DocumentationPage from './pages/DocumentationPage';
+import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignUpPage';
 import '../app/globals.css';
 import {
   createBrowserRouter,
@@ -20,6 +22,14 @@ const router = createBrowserRouter([
   {
     path: "docs/:id",
     element: <DocumentationPage />,
+  },
+  {
+    path: "login",
+    element: <LoginPage/>
+  },
+  {
+    path:"signup",
+    element: <SignUpPage/>
   },
 ]);
 
