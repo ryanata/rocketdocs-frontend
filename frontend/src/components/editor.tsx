@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
@@ -40,6 +41,7 @@ const LexicalEditor = (props: LexicalEditorProps) => {
                 placeholder={<Placeholder />}
                 ErrorBoundary={LexicalErrorBoundary}
               />
+              <ListPlugin />
               <HistoryPlugin />
               <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
             </div>
@@ -114,6 +116,22 @@ const Editor = ({ markdown }: EditorProps) => {
               h6: 'text-base font-bold',
             },
             quote: 'border-l-4 border-slate-500 pl-4',
+            list: {
+              listitem: 'ml-6',
+              listitemChecked: 'pl-2',
+              listitemUnchecked: 'pl-2 text-orange-600',
+              nested: {
+                listitem: 'pl-2',
+              },
+              olDepth: [
+                'list-decimal pl-2',
+                'list-decimal',
+                'list-decimal',
+                'list-decimal',
+                'list-decimal',
+              ],
+              ul: 'list-disc pl-2',
+            },
           },
           nodes: [ HorizontalRuleNode, CodeNode, MarkNode, HeadingNode, QuoteNode, LinkNode, ListNode, ListItemNode],
           editorState: () => {
