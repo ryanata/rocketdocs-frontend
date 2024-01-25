@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import LandingPage from './pages/LandingPage';
 import UploadPage from './pages/UploadPage';
 import DocumentationPage from './pages/DocumentationPage';
 import LoginPage from './pages/LoginPage';
@@ -17,7 +18,11 @@ import {
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <UploadPage />, // <UploadPage /> is the temporary home page
+    element: <LandingPage />,
+  },
+  {
+    path: "/upload",
+    element: <UploadPage />,
   },
   {
     path: "docs/:id",
