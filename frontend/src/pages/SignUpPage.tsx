@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { useMutation } from 'react-query';
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Icon } from '@iconify/react';
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
 const SignUpPage: React.FC = () =>
