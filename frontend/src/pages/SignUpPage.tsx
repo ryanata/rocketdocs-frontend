@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
-
+import rocketPicture from '../assets/rocket.svg';
 const SignUpPage: React.FC = () =>
 {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     return(
-        <div className="h-screen">
+        <div className="h-screen flex flex-row">
             <div className="border-r-2 border" style={{ width: '50%', height: "100%"}}>
                 {/* Header */}
                 <div className="flex justify-between items-center mx-8">
@@ -44,6 +44,9 @@ const SignUpPage: React.FC = () =>
                     <a href="#"  className="mt-4 text-2xl text-[#7553FF]">Log in</a>
                 </div>
                 
+            </div>
+            <div className="w-1/2 border-">
+                <img className= "" style={{ height: '920px', width: '1000px', objectFit: 'cover'}} src = {rocketPicture}></img>
             </div>
         </div>
     )
