@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
-import rocketPicture from '../assets/rocket.svg';
+import rocketPicture from '../assets/image-1000x1000.png';
 const SignUpPage: React.FC = () =>
 {
     const [email, setEmail] = useState<string>("");
