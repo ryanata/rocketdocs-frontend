@@ -15,10 +15,12 @@ const UploadPage: React.FC = () => {
 
     const mutation = useMutation(async () => {
         try {
+            const token = await user?.getIdToken();
             const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs' : 'https://notebites.app/file-docs'}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(
                     {
@@ -42,7 +44,6 @@ const UploadPage: React.FC = () => {
         }
     });
 
-    console.log(user);
 
     return (
         <div className="h-screen">
