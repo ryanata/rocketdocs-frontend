@@ -4,11 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Icon } from '@iconify/react';
+import { getAuth } from "firebase/auth";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
 const UploadPage: React.FC = () => {
     const [githubFileUrl, setGithubFileUrl] = useState<string>("");
     const navigate = useNavigate();
+    const auth = getAuth();
+    const user = auth.currentUser;
 
     const mutation = useMutation(async () => {
         try {
@@ -39,6 +42,8 @@ const UploadPage: React.FC = () => {
         }
     });
 
+    console.log(user);
+
     return (
         <div className="h-screen">
             {/* Top half */}
@@ -47,7 +52,7 @@ const UploadPage: React.FC = () => {
                 <div className="flex justify-between items-center mx-8">
                     <img src={rocketdocsLogo} alt="RocketDocs Logo" />
                     <div className="flex items-center space-x-4">
-                        <a href="#" onClick={() => navigate('/login')} className="hover:before:scale-x-100 hover:before:origin-left text-2xl relative before:w-full before:h-1 before:origin-right before:transition-transform before:duration-300 before:scale-x-0 before:bg-primary before:absolute before:left-0 before:bottom-0">Login</a>
+                        <a onClick={() => navigate('/login')} className="hover:before:scale-x-100 hover:before:origin-left text-2xl relative before:w-full before:h-1 before:origin-right before:transition-transform before:duration-300 before:scale-x-0 before:bg-primary before:absolute before:left-0 before:bottom-0">Login</a>
                         <Button className="text-xl" onClick={() => navigate('/signup')}>Sign Up</Button>
                     </div>
                 </div>

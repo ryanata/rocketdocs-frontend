@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +10,19 @@ const LoginPage: React.FC = () =>
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const navigate = useNavigate();
+    const auth = getAuth();
+
+    const signIn = async () => {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            // Signed in 
+            const user = userCredential.user;
+            console.log(user);
+            navigate('/upload');
+        } catch (error) {
+            console.log(error);
+        }
+    }
     
     return(
         <div className="h-screen">
@@ -39,6 +53,7 @@ const LoginPage: React.FC = () =>
                 </div>
                 <Button  
                     className="text-md text-2xl w-1/2 mt-12 ml-56 h-12"
+                    onClick={signIn}
                 >
                     Log In
                 </Button>

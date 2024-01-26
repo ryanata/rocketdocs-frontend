@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 import { useNavigate } from 'react-router-dom';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 
 const SignUpPage: React.FC = () =>
@@ -10,6 +11,21 @@ const SignUpPage: React.FC = () =>
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const navigate = useNavigate();
+    const auth = getAuth();
+
+
+    const signUp = async () => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            // Signed in 
+            const user = userCredential.user;
+            console.log(user);
+            navigate('/upload');
+        } catch (error) {
+            console.log(error);
+        }
+      }
+
 
     return(
         <div className="h-screen">
@@ -40,6 +56,7 @@ const SignUpPage: React.FC = () =>
                 </div>
                 <Button  
                     className="text-md text-2xl w-1/2 mt-12 ml-56 h-12"
+                    onClick={signUp}
                 >
                     Sign Up
                 </Button>
