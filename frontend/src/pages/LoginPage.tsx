@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 import { useNavigate } from 'react-router-dom';
+import rocketPicture from '../assets/image-1000x1000.png';
 
 const LoginPage: React.FC = () =>
 {
@@ -25,7 +26,7 @@ const LoginPage: React.FC = () =>
     }
     
     return(
-        <div className="h-screen">
+        <div className="h-screen flex flex-row">
             <div className="border-r-2 border" style={{ width: '50%', height: "100%"}}>
                 {/* Header */}
                 <div className="flex justify-between items-center mx-8">
@@ -62,6 +63,9 @@ const LoginPage: React.FC = () =>
                     <a className="mt-4 text-2xl text-[#7553FF]" onClick={() => navigate('/signup')}>Sign up</a>
                 </div>
                 
+            </div>
+            <div className="w-1/2 border-">
+                <img className= "" style={{ height: '920px', width: '1000px', objectFit: 'cover'}} src = {rocketPicture}></img>
             </div>
         </div>
     )
