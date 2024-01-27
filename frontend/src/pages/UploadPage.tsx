@@ -33,7 +33,6 @@ const UploadPage: React.FC = () => {
             }
             const data = await response.json();
             
-            // Extract the id from the response data
             const { id } = data;
 
             // Redirect to /docs/{id}
