@@ -14,7 +14,6 @@ const DocumentationPage: React.FC = () => {
 
     const fetchDocs = async (id: string) => {
         const token = await user?.getIdToken();
-        console.log(token);
         const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs/' : 'https://notebites.app/file-docs/'}${id}`, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -45,14 +44,9 @@ const DocumentationPage: React.FC = () => {
         return <div>Loading...</div>;
     }
 
-
     const handleSetSelectedItem = (item: string | null) => {
         setSelectedItem(item);
-        // Remove starting space
-        const docsNoStartingSpace = doc?.content.replace(/^\s+/, '');
-        // Remove starting spaces before headings
-        const docNoSpacesBeforeHeadings = docsNoStartingSpace.replace(/\n\s*#/g, '\n#');
-        setDocumentation(docNoSpacesBeforeHeadings);
+        setDocumentation(doc?.markdown_content);
     };
     
     return (
