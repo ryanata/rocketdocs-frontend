@@ -34,7 +34,7 @@ const EMPTY_LINE_BREAKS: ElementTransformer = {
   dependencies: [ParagraphNode],
   export: () => { return null; },
   regExp: /^[\n]*$/,
-  replace: (textNode: any, nodes: any, _: any, isImport: any) => {
+  replace: (_: any, nodes: any, __: any, isImport: any) => {
       if (isImport && nodes.length === 1) {
           nodes[0].replace($createParagraphNode());
       }
