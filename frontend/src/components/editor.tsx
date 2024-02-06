@@ -8,6 +8,7 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
     $convertFromMarkdownString,
+    ElementTransformer,
     TRANSFORMERS,
 } from '@lexical/markdown';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text'
@@ -20,12 +21,28 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import Toolbar from '@/plugins/toolbar/Toolbar';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { ParagraphNode, $createParagraphNode } from 'lexical';
 
 type LexicalEditorProps = {
   config: Parameters<typeof LexicalComposer>['0']['initialConfig'];
   isEditorVisible: boolean;
   setEditorVisible: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+// Empty lines are converted to <br> tags
+const EMPTY_LINE_BREAKS: ElementTransformer = {
+  dependencies: [ParagraphNode],
+  export: () => { return null; },
+  regExp: /^[\n]*$/,
+  replace: (_: any, nodes: any, __: any, isImport: any) => {
+      if (isImport && nodes.length === 1) {
+          nodes[0].replace($createParagraphNode());
+      }
+  },
+  type: "element",
+};
+
+const CustomTransformers = [...TRANSFORMERS, EMPTY_LINE_BREAKS];
 
 const LexicalEditor = (props: LexicalEditorProps) => {
   return (
@@ -137,7 +154,7 @@ const Editor = ({ markdown }: EditorProps) => {
           editorState: () => {
             console.log(markdown);
             if (markdown !== null) {
-                return $convertFromMarkdownString(markdown, TRANSFORMERS);
+              return $convertFromMarkdownString(markdown, CustomTransformers);
             }
             return null;
           },
