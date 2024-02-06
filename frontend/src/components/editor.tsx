@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -21,12 +21,17 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import Toolbar from '@/plugins/toolbar/Toolbar';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { DocumentationContext } from '@/utils/Context';
+import { useParams } from 'react-router-dom';
+import { fetchDoc, fetchRepoDoc } from '@/utils/apiUtils';
+import { useQuery } from 'react-query';
+import { DocType } from '@/utils/typeUtils';
 import { ParagraphNode, $createParagraphNode } from 'lexical';
 
 type LexicalEditorProps = {
   config: Parameters<typeof LexicalComposer>['0']['initialConfig'];
-  isEditorVisible: boolean;
-  setEditorVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  editable: boolean;
+  setEditable: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 // Empty lines are converted to <br> tags
@@ -46,13 +51,17 @@ const CustomTransformers = [...TRANSFORMERS, EMPTY_LINE_BREAKS];
 
 const LexicalEditor = (props: LexicalEditorProps) => {
   return (
-    <LexicalComposer initialConfig={props.config}>
+    <LexicalComposer 
+      initialConfig={{
+      ...props.config,
+      editable: props.editable,
+    }}>
         <div className="flex flex-col gap-4">
             <div className="inline-flex justify-end p-4">
-                <ToggleEditable isEditorVisible={props.isEditorVisible} setEditorVisible={props.setEditorVisible} />
+                <ToggleEditable isEditorVisible={props.editable} setEditorVisible={props.setEditable} />
             </div>
-            {props.isEditorVisible && <Toolbar />}
-            <div className={`${props.isEditorVisible ? "border-stone-300 border-2 rounded" : ""}`}>
+            {props.editable && <Toolbar />}
+            <div className={`${props.editable ? "border-stone-300 border-2 rounded" : ""}`}>
               <RichTextPlugin
                 contentEditable={<ContentEditable />}
                 placeholder={<Placeholder />}
@@ -97,12 +106,38 @@ const Placeholder = () => {
   );
 };
 
-type EditorProps = {
-    markdown: string | null;
-};
+const Editor = () => {
+  const [editable, setEditable] = useState<boolean>(false);
+  const { docType, id } = useParams<{ docType: DocType, id: string }>();
+  const { documentation, selectedFile, token, setDocumentation } = useContext(DocumentationContext);
+  
+  const { data: doc, error, isLoading } = useQuery(
+    [selectedFile], 
+    () => {
+      if (docType === 'file') {
+        return fetchDoc(selectedFile, token);
+      }
+      return fetchRepoDoc(id || '', selectedFile, token);
+    },
+    { enabled: !!selectedFile, staleTime: Infinity }
+  );
 
-const Editor = ({ markdown }: EditorProps) => {
-  const [isEditorVisible, setEditorVisible] = useState<boolean>(false);
+  useEffect(() => {
+    if (doc?.status === 'COMPLETED') {
+      setDocumentation(doc?.markdown_content);
+    } else {
+      setDocumentation('Could not generate documentation for this file.');
+    }
+  }, [doc]);
+
+  if (error) {
+    return <div>Something went wrong...</div>;
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div
       id="editor-wrapper"
@@ -111,7 +146,7 @@ const Editor = ({ markdown }: EditorProps) => {
       }
     >
       <LexicalEditor
-        key = {markdown}
+        key={`${selectedFile}-${documentation}`}
         config={{
           namespace: 'lexical-editor',
           theme: {
@@ -152,9 +187,8 @@ const Editor = ({ markdown }: EditorProps) => {
           },
           nodes: [ HorizontalRuleNode, CodeNode, MarkNode, HeadingNode, QuoteNode, LinkNode, ListNode, ListItemNode],
           editorState: () => {
-            console.log(markdown);
-            if (markdown !== null) {
-              return $convertFromMarkdownString(markdown, CustomTransformers);
+            if (documentation !== null) {
+                return $convertFromMarkdownString(documentation, CustomTransformers);
             }
             return null;
           },
@@ -162,8 +196,8 @@ const Editor = ({ markdown }: EditorProps) => {
             console.log(error);
           },
         }}
-        isEditorVisible={isEditorVisible}
-        setEditorVisible={setEditorVisible}
+        editable={editable}
+        setEditable={setEditable}
       />
     </div>
   );

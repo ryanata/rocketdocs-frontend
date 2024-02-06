@@ -7,13 +7,31 @@ import { Icon } from '@iconify/react';
 import { getAuth } from "firebase/auth";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
+type URLType = "repo" | "file" | "invalid";
+
 const UploadPage: React.FC = () => {
     const [githubFileUrl, setGithubFileUrl] = useState<string>("");
     const navigate = useNavigate();
     const auth = getAuth();
     const user = auth.currentUser;
 
-    const mutation = useMutation(async () => {
+    const isRepoUrl = (url: string): URLType => {
+        const repoRegex = /^https:\/\/github\.com\/[^\/]+\/[^\/]+\/?$/;
+        const fileRegex = /^https:\/\/github\.com\/[^\/]+\/[^\/]+\/blob\/.+$/;
+
+        if (repoRegex.test(url)) {
+            console.log("This is a repo");
+            return "repo";
+        } else if (fileRegex.test(url)) {
+            console.log("This is a file");
+            return "file";
+        } else {
+            console.log("Invalid URL");
+            return "invalid";
+        }
+    }
+
+    const fileMutation = useMutation(async () => {
         try {
             const token = await user?.getIdToken();
             const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs' : 'https://notebites.app/file-docs'}`, {
@@ -35,8 +53,38 @@ const UploadPage: React.FC = () => {
             
             const { id } = data;
 
-            // Redirect to /docs/{id}
-            navigate(`/docs/${id}`);
+            // Redirect to /docs/file/id
+            navigate(`/docs/file/${id}`);
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    });
+
+    const repoMutation = useMutation(async () => {
+        try {
+            const token = await user?.getIdToken();
+            const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/repos' : 'https://notebites.app/repos'}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(
+                    {
+                        "github_url": githubFileUrl
+                    }
+                ),
+            });
+            if (!response.ok) {
+                throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+            }
+            const data = await response.json();
+            
+            const { id } = data;
+
+            // Redirect to /docs/repo/{id}
+            navigate(`/docs/repo/${id}`);
         } catch (error) {
             console.error(error);
             throw error;
@@ -90,7 +138,16 @@ const UploadPage: React.FC = () => {
                                 <Button 
                                     size="lg" 
                                     className="text-md w-full"
-                                    onClick={() => mutation.mutate()}
+                                    onClick={() => {
+                                        const urlType = isRepoUrl(githubFileUrl);
+                                        if (urlType === "repo") {
+                                            repoMutation.mutate();
+                                        } else if (urlType === "file") {
+                                            fileMutation.mutate();
+                                        } else {
+                                            alert("Invalid URL");
+                                        }
+                                    }}
                                 >
                                     Create Documentation
                                 </Button>

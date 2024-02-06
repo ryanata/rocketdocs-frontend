@@ -23,6 +23,12 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/file-docs/, ""),
       },
+      "/repos": {
+        target: "https://notebites.app/repos",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/repos/, ""),
+      },
     },
   },
 })
