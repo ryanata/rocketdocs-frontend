@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -20,6 +20,11 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import Toolbar from '@/plugins/toolbar/Toolbar';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { DocumentationContext } from '@/utils/Context';
+import { useParams } from 'react-router-dom';
+import { DocType } from '@/pages/DocumentationPage';
+import { fetchDoc, fetchRepoDoc } from '@/utils/apiUtils';
+import { useQuery } from 'react-query';
 
 type LexicalEditorProps = {
   config: Parameters<typeof LexicalComposer>['0']['initialConfig'];
@@ -80,12 +85,46 @@ const Placeholder = () => {
   );
 };
 
-type EditorProps = {
-    markdown: string | null;
-};
-
-const Editor = ({ markdown }: EditorProps) => {
+const Editor = () => {
   const [isEditorVisible, setEditorVisible] = useState<boolean>(false);
+  const { docType, id } = useParams<{ docType: DocType, id: string }>();
+  const { documentation, selectedFile, token, setDocumentation } = useContext(DocumentationContext);
+  
+  const { data: doc, error, isLoading, refetch } = useQuery(
+    [selectedFile], 
+    () => {
+      if (docType === 'file') {
+        return fetchDoc(selectedFile, token);
+      }
+      return fetchRepoDoc(id || '', selectedFile, token);
+    },
+    { enabled: !!selectedFile, staleTime: Infinity }
+  );
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (doc?.status !== 'COMPLETED') {
+        refetch();
+      }
+    }, 2000);
+
+    return () => clearInterval(intervalId); // Clean up on unmount
+  }, [doc, refetch]);
+
+  useEffect(() => {
+    if (doc?.status === 'COMPLETED') {
+      setDocumentation(doc?.markdown_content);
+    }
+  }, [doc]);
+
+  if (error) {
+    return <div>Something went wrong...</div>;
+  }
+
+  if (isLoading || doc?.status !== 'COMPLETED') {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div
       id="editor-wrapper"
@@ -94,7 +133,7 @@ const Editor = ({ markdown }: EditorProps) => {
       }
     >
       <LexicalEditor
-        key = {markdown}
+        key = {documentation}
         config={{
           namespace: 'lexical-editor',
           theme: {
@@ -135,9 +174,9 @@ const Editor = ({ markdown }: EditorProps) => {
           },
           nodes: [ HorizontalRuleNode, CodeNode, MarkNode, HeadingNode, QuoteNode, LinkNode, ListNode, ListItemNode],
           editorState: () => {
-            console.log(markdown);
-            if (markdown !== null) {
-                return $convertFromMarkdownString(markdown, TRANSFORMERS);
+            console.log(documentation);
+            if (documentation !== null) {
+                return $convertFromMarkdownString(documentation, TRANSFORMERS);
             }
             return null;
           },

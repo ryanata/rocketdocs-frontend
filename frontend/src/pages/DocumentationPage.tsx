@@ -1,34 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useParams } from 'react-router-dom';
 import { getAuth } from "firebase/auth";
 import Sidebar from '@/components/sidebar';
 import Editor from '@/components/editor';
+import { DocumentationContext } from '@/utils/Context';
+import { fetchDoc, fetchRepo } from '@/utils/apiUtils';
+
+export type DocType = 'file' | 'repo';
 
 const DocumentationPage: React.FC = () => {
-    const [selectedItem, setSelectedItem] = useState<string | null>(null);
-    const [documentation, setDocumentation] = useState<string | null>(null);
-    const { id } = useParams<{ id: string }>(); // Get the id from the URL
+    const { docType, id } = useParams<{ docType: DocType, id: string }>(); // Get the id from the URL
+    const { setSelectedFile, setDocumentation, setToken } = useContext(DocumentationContext);
+    const [stillFetching, setStillFetching] = useState(true);
     const auth = getAuth();
     const user = auth.currentUser;
 
-    const fetchDocs = async (id: string) => {
+    const getDocumentation = async (docType: string, id: string) => {
         const token = await user?.getIdToken();
-        const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs/' : 'https://notebites.app/file-docs/'}${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-        if (!response.ok) {
-        throw new Error('Network response was not ok');
-        }
-        return response.json();
+        setToken(token || '');
+        const response = (docType === 'file') ? await fetchDoc(id, token || '') : await fetchRepo(id, token || '');
+        return response;
     };
 
-    const { data: doc, error, isLoading, refetch } = useQuery(['fileDocs', id], () => fetchDocs(id || ''), { enabled: !!id, staleTime: Infinity });    
+    const { data: doc, error, isLoading, refetch } = useQuery(
+        [id], 
+        () => getDocumentation(docType || '', id || ''),
+        { enabled: !!id, staleTime: Infinity }
+    );
+
+    const isReady = () => {
+        const documentStatus = docType === 'file' ? doc?.status : doc?.repo?.status;
+        return documentStatus === 'COMPLETED' || documentStatus === 'FAILED';
+    }
+    
+    
     useEffect(() => {
         const intervalId = setInterval(() => {
-            if (doc?.status === "STARTED") {
+            if (!isReady()) {
                 refetch();
             }
         }, 2000);
@@ -36,24 +45,34 @@ const DocumentationPage: React.FC = () => {
         return () => clearInterval(intervalId); // Clean up on unmount
     }, [doc, refetch]);
     
+    useEffect(() => {
+        if (isReady() && stillFetching) {
+            setStillFetching(false);
+            if (docType === 'file') {
+                setSelectedFile(doc?.id);
+                setDocumentation(doc?.markdown_content);
+            }
+            else {
+                setSelectedFile(doc?.repo.tree[0].id); // high-level repo root directory
+            }
+        }
+    }, [doc]);
+    
     if (error) {
         return <div>Something went wrong...</div>;
     }
 
-    if (isLoading || doc?.status === "STARTED") {
+    if (isLoading || !isReady()) {
         return <div>Loading...</div>;
     }
 
-    const handleSetSelectedItem = (item: string | null) => {
-        setSelectedItem(item);
-        setDocumentation(doc?.markdown_content);
-    };
-    
+    console.log(doc);
+
     return (
         <div style={{ display: 'grid', gridTemplateColumns: '20% 80%' }}>
-            <Sidebar selectedItem={selectedItem} setSelectedItem={handleSetSelectedItem} fileUrl={doc?.github_url}/>
+            <Sidebar />
             <div>
-                <Editor markdown={documentation}/>
+                <Editor/>
             </div>
         </div>
     );
