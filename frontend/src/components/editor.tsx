@@ -8,6 +8,7 @@ import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
     $convertFromMarkdownString,
+    ElementTransformer,
     TRANSFORMERS,
 } from '@lexical/markdown';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text'
@@ -25,12 +26,28 @@ import { useParams } from 'react-router-dom';
 import { fetchDoc, fetchRepoDoc } from '@/utils/apiUtils';
 import { useQuery } from 'react-query';
 import { DocType } from '@/utils/typeUtils';
+import { ParagraphNode, $createParagraphNode } from 'lexical';
 
 type LexicalEditorProps = {
   config: Parameters<typeof LexicalComposer>['0']['initialConfig'];
   editable: boolean;
   setEditable: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+// Empty lines are converted to <br> tags
+const EMPTY_LINE_BREAKS: ElementTransformer = {
+  dependencies: [ParagraphNode],
+  export: () => { return null; },
+  regExp: /^[\n]*$/,
+  replace: (_: any, nodes: any, __: any, isImport: any) => {
+      if (isImport && nodes.length === 1) {
+          nodes[0].replace($createParagraphNode());
+      }
+  },
+  type: "element",
+};
+
+const CustomTransformers = [...TRANSFORMERS, EMPTY_LINE_BREAKS];
 
 const LexicalEditor = (props: LexicalEditorProps) => {
   return (
@@ -171,7 +188,7 @@ const Editor = () => {
           nodes: [ HorizontalRuleNode, CodeNode, MarkNode, HeadingNode, QuoteNode, LinkNode, ListNode, ListItemNode],
           editorState: () => {
             if (documentation !== null) {
-                return $convertFromMarkdownString(documentation, TRANSFORMERS);
+                return $convertFromMarkdownString(documentation, CustomTransformers);
             }
             return null;
           },
