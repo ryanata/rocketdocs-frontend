@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { DocumentationContext } from "@/utils/Context";
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DocType } from "@/utils/typeUtils";
+import { Icon } from "@iconify/react";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
 const Sidebar: React.FC = () => {
@@ -32,12 +33,12 @@ const Sidebar: React.FC = () => {
         if (node.type === "dir") {
             return (
                 // TODO: Give folder a unique folder handler
-                <Folder name={getFileNameFromPath(node.path)} id={node.id} clickHandler={selectFileHandler} isSelected={isSelected}>
+                <Folder name={getFileNameFromPath(node.path)} id={node.id} clickHandler={selectFileHandler} isSelected={isSelected} key={node.id}>
                     {node.children.map(createFileTree)}
                 </Folder>
             );
         } else if (node.type === "file") {
-            return <File name={getFileNameFromPath(node.path)} id={node.id} clickHandler={selectFileHandler} isSelected={isSelected}/>;
+            return <File name={getFileNameFromPath(node.path)} id={node.id} clickHandler={selectFileHandler} isSelected={isSelected} key={node.id}/>;
         }
     }
 
@@ -69,14 +70,14 @@ const File = ({name, id, clickHandler, isSelected}: FileProps) => {
 
     return (
         <div
-            className={`flex rounded-md px-4 ${(!isSelected(id)) ? 'cursor-pointer' : ''} ${(isSelected(id) || isHovered) ? 'bg-light-purple' : ''}`} 
+            className={`flex gap-2 rounded-md px-4 ${(!isSelected(id)) ? 'cursor-pointer' : ''} ${(isSelected(id) || isHovered) ? 'bg-light-purple' : ''}`} 
             onClick={() => {clickHandler(id)}}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             data-identifier={id}
         >
             <div className="bg-light-purple" style={{ width: "2px" }}></div>
-            <p className="ml-4 text-gray-500 text-2xl py-2 truncate max-w-fit" title={name}>{name}</p>
+            <p className="text-gray-500 text-xl py-2 truncate max-w-fit" title={name}>{name}</p>
         </div>
     )
 }
@@ -96,7 +97,7 @@ const Folder = ({ name, id, clickHandler, isSelected, children }: FolderProps) =
     return (
         <>
             <div
-                className={`flex rounded-md px-4 ${(!isSelected(id)) ? 'cursor-pointer' : ''} ${(isSelected(id) || isHovered) ? 'bg-light-purple' : ''}`} 
+                className={`flex gap-2 rounded-md px-4 ${(!isSelected(id)) ? 'cursor-pointer' : ''} ${(isSelected(id) || isHovered) ? 'bg-light-purple' : ''}`} 
                 onClick={() => {
                     // Display the folder documentation
                     clickHandler(id);
@@ -107,11 +108,16 @@ const Folder = ({ name, id, clickHandler, isSelected, children }: FolderProps) =
                 onMouseLeave={() => setIsHovered(false)}
                 data-identifier={id}
             >
-                <div className="bg-light-purple" style={{ width: "2px" }}></div>
-                <p className="ml-4 text-gray-500 text-2xl py-2 truncate max-w-fit" title={name}>{name}</p>
+                <div className="bg-light-purple" style={{ width: "2px" }} />
+                <div className="flex justify-between w-full">
+                    <p className="text-gray-500 text-xl py-2 truncate max-w-fit" title={name}>{name}</p>
+                    <div className="flex items-center">
+                        {isExpanded ? <Icon icon="mdi:chevron-down" className="text-xl" />: <Icon icon="mdi:chevron-right" className="text-xl" />}
+                    </div>
+                </div>
             </div>
             {isExpanded && (
-                <div className="flex flex-col pl-4">
+                <div className="flex flex-col pl-2">
                     {children}
                 </div>
             )}

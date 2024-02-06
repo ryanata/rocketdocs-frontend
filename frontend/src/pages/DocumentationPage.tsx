@@ -65,8 +65,6 @@ const DocumentationPage: React.FC = () => {
         return <div>Loading...</div>;
     }
 
-    console.log(doc);
-
     return (
         <div style={{ display: 'grid', gridTemplateColumns: '20% 80%' }}>
             <Sidebar />

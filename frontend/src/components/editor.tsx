@@ -28,19 +28,23 @@ import { DocType } from '@/utils/typeUtils';
 
 type LexicalEditorProps = {
   config: Parameters<typeof LexicalComposer>['0']['initialConfig'];
-  isEditorVisible: boolean;
-  setEditorVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  editable: boolean;
+  setEditable: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const LexicalEditor = (props: LexicalEditorProps) => {
   return (
-    <LexicalComposer initialConfig={props.config}>
+    <LexicalComposer 
+      initialConfig={{
+      ...props.config,
+      editable: props.editable,
+    }}>
         <div className="flex flex-col gap-4">
             <div className="inline-flex justify-end p-4">
-                <ToggleEditable isEditorVisible={props.isEditorVisible} setEditorVisible={props.setEditorVisible} />
+                <ToggleEditable isEditorVisible={props.editable} setEditorVisible={props.setEditable} />
             </div>
-            {props.isEditorVisible && <Toolbar />}
-            <div className={`${props.isEditorVisible ? "border-stone-300 border-2 rounded" : ""}`}>
+            {props.editable && <Toolbar />}
+            <div className={`${props.editable ? "border-stone-300 border-2 rounded" : ""}`}>
               <RichTextPlugin
                 contentEditable={<ContentEditable />}
                 placeholder={<Placeholder />}
@@ -86,11 +90,11 @@ const Placeholder = () => {
 };
 
 const Editor = () => {
-  const [isEditorVisible, setEditorVisible] = useState<boolean>(false);
+  const [editable, setEditable] = useState<boolean>(false);
   const { docType, id } = useParams<{ docType: DocType, id: string }>();
   const { documentation, selectedFile, token, setDocumentation } = useContext(DocumentationContext);
   
-  const { data: doc, error, isLoading, refetch } = useQuery(
+  const { data: doc, error, isLoading } = useQuery(
     [selectedFile], 
     () => {
       if (docType === 'file') {
@@ -102,18 +106,10 @@ const Editor = () => {
   );
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (doc?.status !== 'COMPLETED') {
-        refetch();
-      }
-    }, 2000);
-
-    return () => clearInterval(intervalId); // Clean up on unmount
-  }, [doc, refetch]);
-
-  useEffect(() => {
     if (doc?.status === 'COMPLETED') {
       setDocumentation(doc?.markdown_content);
+    } else {
+      setDocumentation('Could not generate documentation for this file.');
     }
   }, [doc]);
 
@@ -121,7 +117,7 @@ const Editor = () => {
     return <div>Something went wrong...</div>;
   }
 
-  if (isLoading || doc?.status !== 'COMPLETED') {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
@@ -133,7 +129,7 @@ const Editor = () => {
       }
     >
       <LexicalEditor
-        key = {documentation}
+        key={`${selectedFile}-${documentation}`}
         config={{
           namespace: 'lexical-editor',
           theme: {
@@ -174,7 +170,6 @@ const Editor = () => {
           },
           nodes: [ HorizontalRuleNode, CodeNode, MarkNode, HeadingNode, QuoteNode, LinkNode, ListNode, ListItemNode],
           editorState: () => {
-            console.log(documentation);
             if (documentation !== null) {
                 return $convertFromMarkdownString(documentation, TRANSFORMERS);
             }
@@ -184,8 +179,8 @@ const Editor = () => {
             console.log(error);
           },
         }}
-        isEditorVisible={isEditorVisible}
-        setEditorVisible={setEditorVisible}
+        editable={editable}
+        setEditable={setEditable}
       />
     </div>
   );
