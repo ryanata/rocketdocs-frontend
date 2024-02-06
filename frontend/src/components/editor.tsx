@@ -22,9 +22,9 @@ import Toolbar from '@/plugins/toolbar/Toolbar';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import { DocumentationContext } from '@/utils/Context';
 import { useParams } from 'react-router-dom';
-import { DocType } from '@/pages/DocumentationPage';
 import { fetchDoc, fetchRepoDoc } from '@/utils/apiUtils';
 import { useQuery } from 'react-query';
+import { DocType } from '@/utils/typeUtils';
 
 type LexicalEditorProps = {
   config: Parameters<typeof LexicalComposer>['0']['initialConfig'];

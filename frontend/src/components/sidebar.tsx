@@ -1,10 +1,10 @@
 import * as React from "react"
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import { useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
-import { DocType } from "@/pages/DocumentationPage";
 import { DocumentationContext } from "@/utils/Context";
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { DocType } from "@/utils/typeUtils";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
 const Sidebar: React.FC = () => {

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useMemo } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { useParams } from 'react-router-dom';
 import { getAuth } from "firebase/auth";
@@ -6,8 +6,7 @@ import Sidebar from '@/components/sidebar';
 import Editor from '@/components/editor';
 import { DocumentationContext } from '@/utils/Context';
 import { fetchDoc, fetchRepo } from '@/utils/apiUtils';
-
-export type DocType = 'file' | 'repo';
+import { DocType } from '@/utils/typeUtils';
 
 const DocumentationPage: React.FC = () => {
     const { docType, id } = useParams<{ docType: DocType, id: string }>(); // Get the id from the URL
