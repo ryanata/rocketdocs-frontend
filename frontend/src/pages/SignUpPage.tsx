@@ -20,7 +20,7 @@ const SignUpPage: React.FC = () =>
             // Signed in 
             const user = userCredential.user;
             console.log(user);
-            navigate('/upload');
+            navigate('/dashboard');
         } catch (error) {
             console.log(error);
         }
