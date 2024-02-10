@@ -7,6 +7,7 @@ import Editor from '@/components/editor';
 import { DocumentationContext } from '@/utils/Context';
 import { fetchDoc, fetchRepo } from '@/utils/apiUtils';
 import { DocType } from '@/utils/typeUtils';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 const DocumentationPage: React.FC = () => {
     const { docType, id } = useParams<{ docType: DocType, id: string }>(); // Get the id from the URL
@@ -62,7 +63,14 @@ const DocumentationPage: React.FC = () => {
     }
 
     if (isLoading || !isReady()) {
-        return <div>Loading...</div>;
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className='flex flex-col justify-center items-center gap-3'>
+                    <LoadingSpinner />
+                    <p>{isLoading ? "Loading..." : "Generating documentation..."}</p>
+                </div>
+            </div>
+        )
     }
 
     return (

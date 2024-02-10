@@ -27,6 +27,7 @@ import { fetchDoc, fetchRepoDoc } from '@/utils/apiUtils';
 import { useQuery } from 'react-query';
 import { DocType } from '@/utils/typeUtils';
 import { ParagraphNode, $createParagraphNode } from 'lexical';
+import { LoadingSpinner } from './ui/loading-spinner';
 
 type LexicalEditorProps = {
   config: Parameters<typeof LexicalComposer>['0']['initialConfig'];
@@ -135,7 +136,14 @@ const Editor = () => {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className='flex flex-col justify-center items-center gap-3'>
+          <LoadingSpinner />
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
