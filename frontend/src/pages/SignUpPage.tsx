@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 import { useNavigate } from 'react-router-dom';
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+// import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import rocketPicture from '../assets/image-1000x1000.png';
 
 const SignUpPage: React.FC = () =>
@@ -11,16 +11,16 @@ const SignUpPage: React.FC = () =>
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const navigate = useNavigate();
-    const auth = getAuth();
+    // const auth = getAuth();
 
 
     const signUp = async () => {
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            // const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             // Signed in 
-            const user = userCredential.user;
-            console.log(user);
-            navigate('/dashboard');
+            // const user = userCredential.user;
+            // console.log(user);
+            // navigate('/dashboard');
         } catch (error) {
             console.log(error);
         }
