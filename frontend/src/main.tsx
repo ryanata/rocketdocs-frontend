@@ -1,9 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { initializeApp } from 'firebase/app';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './utils/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
-import UploadPage from './pages/UploadPage';
 import DocumentationPage from './pages/DocumentationPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
@@ -16,6 +15,8 @@ import {
   QueryClient,
   QueryClientProvider,
 } from 'react-query'
+import { DocumentationProvider } from './utils/Context';
+import DashboardPage from './pages/DashboardPage';
 
 const router = createBrowserRouter([
   {
@@ -23,12 +24,12 @@ const router = createBrowserRouter([
     element: <LandingPage />,
   },
   {
-    path: "/upload",
-    element: <ProtectedRoute component={UploadPage} />,
+    path: "/dashboard",
+    element: <ProtectedRoute component={DashboardPage} />,
   },
   {
-    path: "docs/:id",
-    element: <ProtectedRoute component={DocumentationPage} />,
+    path: "docs/:docType/:id",
+    element: <DocumentationProvider><ProtectedRoute component={DocumentationPage} /></DocumentationProvider>,
   },
   {
     path: "login",
