@@ -10,7 +10,7 @@ const LandingPage: React.FC = () => {
 
 
     return (
-        <div className="bg-gradient-to-b from-white via-white via-60% to-violet-300 h-screen overflow-hidden">
+        <div className="flex flex-col bg-gradient-to-b from-white via-white via-60% to-violet-300 h-screen overflow-hidden">
             <div className="flex justify-between items-center mx-8">
                 <img src={rocketdocsLogo} alt="RocketDocs Logo" />
                 <div className="flex items-center space-x-1">
@@ -24,19 +24,16 @@ const LandingPage: React.FC = () => {
                 </div>
             </div>
 
-            <main className="container mx-auto px-4 py-16 ">
-                {
-                    <div className="flex justify-center items-center w-full">
-                         <div className="flex flex-col space-y-8 items-center">
-                            <h1 className="text-6xl font-semibold text-center">Documentation <br></br> in rocket speeds</h1>
-                            <p className="text-2xl text-center">Create documentation out of the box in <br></br> minutes with the power of AI.</p>
-                            <Button className="text-xl w-1/5" onClick={() => navigate('/signup')}>Start Creating</Button>
-                            <div className="w-4/6">
-                                <img className="bottom-0 flex justify-center" src={page} alt="Page" />
-                            </div>
-                         </div>
-                    </div>
-                }
+            <main className="flex flex-1 flex-col items-center justify-between mx-auto px-4 mt-8">
+                <div className="flex flex-col gap-8 items-center">
+                    <h1 className="text-6xl font-semibold text-center">Documentation <br></br> in rocket speeds</h1>
+                    <p className="text-2xl text-center">Create documentation out of the box in <br></br> minutes with the power of AI.</p>
+                    <Button className="text-xl" size="lg" onClick={() => navigate('/signup')}>Start Creating</Button>
+                </div>
+
+                <div className="flex w-4/6 justify-end">
+                    <img className="" src={page} alt="Page" />
+                </div>
             </main>
         </div>
     );
