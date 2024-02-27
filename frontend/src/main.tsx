@@ -28,7 +28,15 @@ const router = createBrowserRouter([
     element: <ProtectedRoute component={DashboardPage} />,
   },
   {
-    path: "docs/:docType/:id",
+    path: "/repos/:repoId",
+    element: <DocumentationProvider><ProtectedRoute component={DocumentationPage} /></DocumentationProvider>,
+  },
+  // {
+  //   path: "/repos/:repoId/:fileId",
+  //   element: <DocumentationProvider><ProtectedRoute component={DocumentationPage} /></DocumentationProvider>,
+  // },
+  {
+    path: "/file-docs/:fileId",
     element: <DocumentationProvider><ProtectedRoute component={DocumentationPage} /></DocumentationProvider>,
   },
   {

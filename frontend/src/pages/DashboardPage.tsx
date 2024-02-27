@@ -47,7 +47,7 @@ const DashboardPage: React.FC = () => {
         try {
             const token = await user?.getIdToken() ?? "";
             const id = await postDoc(token, githubFileUrl);
-            navigate(`/docs/file/${id}`);
+            navigate(`/file-docs/${id}`);
         } catch (error) {
             console.error(error);
             throw error;
@@ -58,7 +58,7 @@ const DashboardPage: React.FC = () => {
         try {
             const token = await user?.getIdToken() ?? "";
             const id = await postRepo(token, githubFileUrl);
-            navigate(`/docs/repo/${id}`);
+            navigate(`/repos/${id}`);
         } catch (error) {
             console.error(error);
             throw error;
@@ -181,7 +181,7 @@ const MyDocsCard = ({name, id, status}: {name: string, id: string, status: strin
     return (
         <div 
             className="flex flex-col w-[25rem] h-40 p-2 bg-slate-100 border-2 border-slate-800 rounded-lg hover:bg-light-purple"
-            onClick={() => navigate(`/docs/repo/${id}`)}
+            onClick={() => navigate(`/repos/${id}`)}
         >
             <div className="flex justify-between gap-2">
                 <Icon icon="devicon:github" width={32} height={32} />

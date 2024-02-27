@@ -4,15 +4,14 @@ import { useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import { DocumentationContext } from "@/utils/Context";
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { DocType } from "@/utils/typeUtils";
 import { Icon } from "@iconify/react";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
 const Sidebar: React.FC = () => {
-    const { docType, id } = useParams<{ docType: DocType, id: string }>();
+    const { repoId, fileId } = useParams<{ repoId?: string, fileId: string }>();
     const { setSelectedFile, selectedFile} = useContext(DocumentationContext);
     const queryClient = useQueryClient();
-    const response: any = queryClient.getQueryData([id])
+    const response: any = queryClient.getQueryData([repoId ? repoId : fileId])
 
     const getFileNameFromPath = (path: string) => {
         const parts = path.split('/');
@@ -47,10 +46,12 @@ const Sidebar: React.FC = () => {
             <img src={rocketdocsLogo} alt="RocketDocs Logo" className="mx-8" />
             <ScrollArea>
                 <div className="flex flex-col mt-8 ml-2 mr-4">
-                    {docType === "file" ? (
-                        <File name={getFileNameFromPath(response?.relative_path)} id={response?.id} clickHandler={selectFileHandler} isSelected={isSelected}/>
-                    ):
+                    {repoId ?
                         response?.repo.tree[0].children.map(createFileTree)
+                        :
+                        (
+                            <File name={getFileNameFromPath(response?.relative_path)} id={response?.id} clickHandler={selectFileHandler} isSelected={isSelected}/>
+                        )
                     }
                 </div>
             </ScrollArea>

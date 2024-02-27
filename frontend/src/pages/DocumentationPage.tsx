@@ -6,31 +6,44 @@ import Sidebar from '@/components/sidebar';
 import Editor from '@/components/editor';
 import { DocumentationContext } from '@/utils/Context';
 import { fetchDoc, fetchRepo } from '@/utils/apiUtils';
-import { DocType } from '@/utils/typeUtils';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 const DocumentationPage: React.FC = () => {
-    const { docType, id } = useParams<{ docType: DocType, id: string }>(); // Get the id from the URL
+    const { repoId, fileId } = useParams<{ repoId?: string, fileId: string }>();
     const { setSelectedFile, setDocumentation, setToken } = useContext(DocumentationContext);
     const [stillFetching, setStillFetching] = useState(true);
     const auth = getAuth();
     const user = auth.currentUser;
 
-    const getDocumentation = async (docType: string, id: string) => {
+    // const getDocumentation = async (docType: string, id: string) => {
+    //     const token = await user?.getIdToken();
+    //     setToken(token || '');
+    //     const response = (docType === 'file') ? await fetchDoc(id, token || '') : await fetchRepo(id, token || '');
+    //     return response;
+    // };
+    const getDocumentation = async () => {
         const token = await user?.getIdToken();
         setToken(token || '');
-        const response = (docType === 'file') ? await fetchDoc(id, token || '') : await fetchRepo(id, token || '');
-        return response;
+
+        if (repoId) {
+            // Fetch repo documentation
+            const response = await fetchRepo(repoId, token || '');
+            return response;
+        } else {
+            // Fetch file documentation
+            const response = await fetchDoc(fileId || '', token || '');
+            return response;
+        }
     };
 
     const { data: doc, error, isLoading, refetch } = useQuery(
-        [id], 
-        () => getDocumentation(docType || '', id || ''),
-        { enabled: !!id, staleTime: Infinity }
+        [repoId ? repoId : fileId], 
+        () => getDocumentation(),
+        { enabled: !!repoId || !!fileId, staleTime: Infinity }
     );
 
     const isReady = () => {
-        const documentStatus = docType === 'file' ? doc?.status : doc?.repo?.status;
+        const documentStatus = repoId ? doc?.repo?.status : doc?.status;
         return documentStatus === 'COMPLETED' || documentStatus === 'FAILED';
     }
     
@@ -48,12 +61,12 @@ const DocumentationPage: React.FC = () => {
     useEffect(() => {
         if (isReady() && stillFetching) {
             setStillFetching(false);
-            if (docType === 'file') {
-                setSelectedFile(doc?.id);
-                setDocumentation(doc?.markdown_content);
+            if (repoId) {
+                setSelectedFile(doc?.repo.tree[0].id); // high-level repo root directory
             }
             else {
-                setSelectedFile(doc?.repo.tree[0].id); // high-level repo root directory
+                setSelectedFile(doc?.id);
+                setDocumentation(doc?.markdown_content);
             }
         }
     }, [doc]);

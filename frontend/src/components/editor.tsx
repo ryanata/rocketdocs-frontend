@@ -25,7 +25,6 @@ import { DocumentationContext } from '@/utils/Context';
 import { useParams } from 'react-router-dom';
 import { fetchDoc, fetchRepoDoc } from '@/utils/apiUtils';
 import { useQuery } from 'react-query';
-import { DocType } from '@/utils/typeUtils';
 import { ParagraphNode, $createParagraphNode } from 'lexical';
 import { LoadingSpinner } from './ui/loading-spinner';
 
@@ -109,16 +108,16 @@ const Placeholder = () => {
 
 const Editor = () => {
   const [editable, setEditable] = useState<boolean>(false);
-  const { docType, id } = useParams<{ docType: DocType, id: string }>();
+  const { repoId } = useParams<{ repoId?: string, fileId: string }>();
   const { documentation, selectedFile, token, setDocumentation } = useContext(DocumentationContext);
   
   const { data: doc, error, isLoading } = useQuery(
     [selectedFile], 
     () => {
-      if (docType === 'file') {
-        return fetchDoc(selectedFile, token);
+      if (repoId) {
+        return fetchRepoDoc(repoId, selectedFile, token);
       }
-      return fetchRepoDoc(id || '', selectedFile, token);
+      return fetchDoc(selectedFile, token);
     },
     { enabled: !!selectedFile, staleTime: Infinity }
   );
