@@ -25,7 +25,6 @@ import { DocumentationContext } from '@/utils/Context';
 import { useParams } from 'react-router-dom';
 import { fetchDoc, fetchRepoDoc } from '@/utils/apiUtils';
 import { useQuery } from 'react-query';
-import { DocType } from '@/utils/typeUtils';
 import { ParagraphNode, $createParagraphNode } from 'lexical';
 import { LoadingSpinner } from './ui/loading-spinner';
 
@@ -109,18 +108,18 @@ const Placeholder = () => {
 
 const Editor = () => {
   const [editable, setEditable] = useState<boolean>(false);
-  const { docType, id } = useParams<{ docType: DocType, id: string }>();
-  const { documentation, selectedFile, token, setDocumentation } = useContext(DocumentationContext);
+  const { repoId, fileId } = useParams<{ repoId?: string, fileId: string }>();
+  const { documentation, token, setDocumentation } = useContext(DocumentationContext);
   
   const { data: doc, error, isLoading } = useQuery(
-    [selectedFile], 
+    [fileId], 
     () => {
-      if (docType === 'file') {
-        return fetchDoc(selectedFile, token);
+      if (repoId) {
+        return fetchRepoDoc(repoId, fileId || '', token);
       }
-      return fetchRepoDoc(id || '', selectedFile, token);
+      return fetchDoc(fileId || '', token);
     },
-    { enabled: !!selectedFile, staleTime: Infinity }
+    { enabled: !!repoId || !!fileId, staleTime: Infinity }
   );
 
   useEffect(() => {
@@ -154,7 +153,7 @@ const Editor = () => {
       }
     >
       <LexicalEditor
-        key={`${selectedFile}-${documentation}`}
+        key={`${fileId}-${documentation}`}
         config={{
           namespace: 'lexical-editor',
           theme: {
