@@ -4,6 +4,8 @@ import { initializeApp } from 'firebase/app';
 import ProtectedRoute from './utils/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import DocumentationPage from './pages/DocumentationPage';
+import Sidebar from './components/sidebar';
+import Editor from './components/editor';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import '../app/globals.css';
@@ -28,16 +30,34 @@ const router = createBrowserRouter([
     element: <ProtectedRoute component={DashboardPage} />,
   },
   {
-    path: "/repos/:repoId",
+    path: "docs/repo/:repoId",
     element: <DocumentationProvider><ProtectedRoute component={DocumentationPage} /></DocumentationProvider>,
+    children: [
+      {
+        path: ":fileId",
+        element: (
+          <>
+            <Sidebar />
+            <Editor/>
+          </>
+        )
+      }
+    ]
   },
-  // {
-  //   path: "/repos/:repoId/:fileId",
-  //   element: <DocumentationProvider><ProtectedRoute component={DocumentationPage} /></DocumentationProvider>,
-  // },
   {
-    path: "/file-docs/:fileId",
+    path: "docs/file/:fileId",
     element: <DocumentationProvider><ProtectedRoute component={DocumentationPage} /></DocumentationProvider>,
+    children: [
+      {
+        path: "",
+        element: (
+          <>
+            <Sidebar />
+            <Editor/>
+          </>
+        )
+      }
+    ]
   },
   {
     path: "login",

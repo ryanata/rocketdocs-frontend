@@ -1,15 +1,14 @@
 import * as React from "react"
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useQueryClient } from "react-query";
-import { useParams } from "react-router-dom";
-import { DocumentationContext } from "@/utils/Context";
+import { useParams, useNavigate } from "react-router-dom";
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Icon } from "@iconify/react";
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
 const Sidebar: React.FC = () => {
     const { repoId, fileId } = useParams<{ repoId?: string, fileId: string }>();
-    const { setSelectedFile, selectedFile} = useContext(DocumentationContext);
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const response: any = queryClient.getQueryData([repoId ? repoId : fileId])
 
@@ -19,27 +18,47 @@ const Sidebar: React.FC = () => {
     }
 
     const selectFileHandler = (id: string) => {
-        if (selectedFile !== id) {
-            setSelectedFile(id);
+        if (fileId !== id) { // file-docs only have 1 file, so it will never enter this condition
+            navigate(`/docs/repo/${repoId}/${id}`);
         }
     }
 
-    const isSelected = (id: string) => {
-        return selectedFile === id;
+    const createChildrenAndCheckExpansion = (node: any, fileId: string | undefined): [boolean, JSX.Element[]] => {
+        let isExpanded = false;
+        const children = node.children.map((child: any) => {
+            const [childIsSelected, childComponent] = createFileTree(child);
+            isExpanded = isExpanded || childIsSelected;
+            return childComponent;
+        });
+    
+        // If the selected item is the current folder, expand it
+        isExpanded = isExpanded || node.id === fileId;
+    
+        return [isExpanded, children];
     }
 
-    const createFileTree = (node: any) => {
+    const createFileTree = (node: any): [boolean, JSX.Element] => {
+        const isSelected = node.id === fileId;
+
         if (node.type === "dir") {
-            return (
-                // TODO: Give folder a unique folder handler
-                <Folder name={getFileNameFromPath(node.path)} id={node.id} clickHandler={selectFileHandler} isSelected={isSelected} key={node.id}>
-                    {node.children.map(createFileTree)}
+            const [isExpanded, children] = createChildrenAndCheckExpansion(node, fileId);
+
+            return [
+                isExpanded,
+                <Folder name={getFileNameFromPath(node.path)} id={node.id} clickHandler={selectFileHandler} isSelected={isSelected} isExpanded={isExpanded} key={node.id}>
+                    {children}
                 </Folder>
-            );
+            ];
         } else if (node.type === "file") {
-            return <File name={getFileNameFromPath(node.path)} id={node.id} clickHandler={selectFileHandler} isSelected={isSelected} key={node.id}/>;
+            return [
+                isSelected,
+                <File name={getFileNameFromPath(node.path)} id={node.id} clickHandler={selectFileHandler} isSelected={isSelected} key={node.id}/>
+            ];
         }
+        return [false, <></>];
     }
+    
+    // rest of the code...
 
     return (
         <div className={`inline-flex flex-col`} style={{background: "linear-gradient(270deg, #EBEBF0 0%, rgba(246, 245, 251, 0.33) 37.5%, #F6F5FB 100%)", height: "100vh"}}>
@@ -47,10 +66,13 @@ const Sidebar: React.FC = () => {
             <ScrollArea>
                 <div className="flex flex-col mt-8 ml-2 mr-4">
                     {repoId ?
-                        response?.repo.tree[0].children.map(createFileTree)
+                        response?.repo.tree[0].children.map((child: any) => {
+                            const [_, childComponent] = createFileTree(child);
+                            return childComponent;
+                        })
                         :
                         (
-                            <File name={getFileNameFromPath(response?.relative_path)} id={response?.id} clickHandler={selectFileHandler} isSelected={isSelected}/>
+                            <File name={getFileNameFromPath(response?.relative_path)} id={response?.id} clickHandler={selectFileHandler} isSelected={response.id === fileId}/>
                         )
                     }
                 </div>
@@ -62,8 +84,8 @@ const Sidebar: React.FC = () => {
 type FileProps = {
     name: string,
     id: string,
+    isSelected: boolean,
     clickHandler: (id: string) => void,
-    isSelected: (id: string) => boolean
 };  
 
 const File = ({name, id, clickHandler, isSelected}: FileProps) => {
@@ -71,7 +93,7 @@ const File = ({name, id, clickHandler, isSelected}: FileProps) => {
 
     return (
         <div
-            className={`flex gap-2 rounded-md px-4 ${(!isSelected(id)) ? 'cursor-pointer' : ''} ${(isSelected(id) || isHovered) ? 'bg-light-purple' : ''}`} 
+            className={`flex gap-2 rounded-md px-4 ${(!isSelected) ? 'cursor-pointer' : ''} ${(isSelected || isHovered) ? 'bg-light-purple' : ''}`} 
             onClick={() => {clickHandler(id)}}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -86,24 +108,27 @@ const File = ({name, id, clickHandler, isSelected}: FileProps) => {
 type FolderProps = {
     name: string,
     id: string,
+    isSelected: boolean,
+    isExpanded: boolean,
     clickHandler: (id: string) => void,
-    isSelected: (id: string) => boolean,
     children?: React.ReactNode,
 };
 
-const Folder = ({ name, id, clickHandler, isSelected, children }: FolderProps) => {
+const Folder = ({ name, id, isSelected, isExpanded, clickHandler, children }: FolderProps) => {
     const [isHovered, setIsHovered] = useState(false);
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [closedFolder, setClosedFolder] = useState(false);
 
     return (
         <>
             <div
-                className={`flex gap-2 rounded-md px-4 ${(!isSelected(id)) ? 'cursor-pointer' : ''} ${(isSelected(id) || isHovered) ? 'bg-light-purple' : ''}`} 
+                className={`flex gap-2 rounded-md px-4 ${(!isSelected) ? 'cursor-pointer' : ''} ${(isSelected || isHovered) ? 'bg-light-purple' : ''}`} 
                 onClick={() => {
-                    // Display the folder documentation
-                    clickHandler(id);
-                    // Toggle expansion
-                    setIsExpanded(!isExpanded);
+                    if (isSelected) {
+                        setClosedFolder(!closedFolder);
+                    } else {
+                        // Display the folder documentation
+                        clickHandler(id);
+                    }
                 }}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
@@ -113,11 +138,11 @@ const Folder = ({ name, id, clickHandler, isSelected, children }: FolderProps) =
                 <div className="flex justify-between w-full">
                     <p className="text-gray-500 text-xl py-2 truncate max-w-fit" title={name}>{name}</p>
                     <div className="flex items-center">
-                        {isExpanded ? <Icon icon="mdi:chevron-down" className="text-xl" />: <Icon icon="mdi:chevron-right" className="text-xl" />}
+                        {(isExpanded && !closedFolder) ? <Icon icon="mdi:chevron-down" className="text-xl" />: <Icon icon="mdi:chevron-right" className="text-xl" />}
                     </div>
                 </div>
             </div>
-            {isExpanded && (
+            {(isExpanded && !closedFolder) && (
                 <div className="flex flex-col pl-2">
                     {children}
                 </div>

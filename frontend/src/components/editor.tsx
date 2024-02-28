@@ -108,18 +108,18 @@ const Placeholder = () => {
 
 const Editor = () => {
   const [editable, setEditable] = useState<boolean>(false);
-  const { repoId } = useParams<{ repoId?: string, fileId: string }>();
-  const { documentation, selectedFile, token, setDocumentation } = useContext(DocumentationContext);
+  const { repoId, fileId } = useParams<{ repoId?: string, fileId: string }>();
+  const { documentation, token, setDocumentation } = useContext(DocumentationContext);
   
   const { data: doc, error, isLoading } = useQuery(
-    [selectedFile], 
+    [fileId], 
     () => {
       if (repoId) {
-        return fetchRepoDoc(repoId, selectedFile, token);
+        return fetchRepoDoc(repoId, fileId || '', token);
       }
-      return fetchDoc(selectedFile, token);
+      return fetchDoc(fileId || '', token);
     },
-    { enabled: !!selectedFile, staleTime: Infinity }
+    { enabled: !!repoId || !!fileId, staleTime: Infinity }
   );
 
   useEffect(() => {
@@ -153,7 +153,7 @@ const Editor = () => {
       }
     >
       <LexicalEditor
-        key={`${selectedFile}-${documentation}`}
+        key={`${fileId}-${documentation}`}
         config={{
           namespace: 'lexical-editor',
           theme: {

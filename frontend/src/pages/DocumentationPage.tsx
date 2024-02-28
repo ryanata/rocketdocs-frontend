@@ -1,26 +1,19 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useQuery } from 'react-query';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getAuth } from "firebase/auth";
-import Sidebar from '@/components/sidebar';
-import Editor from '@/components/editor';
 import { DocumentationContext } from '@/utils/Context';
 import { fetchDoc, fetchRepo } from '@/utils/apiUtils';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { Outlet } from 'react-router-dom';
 
 const DocumentationPage: React.FC = () => {
     const { repoId, fileId } = useParams<{ repoId?: string, fileId: string }>();
-    const { setSelectedFile, setDocumentation, setToken } = useContext(DocumentationContext);
-    const [stillFetching, setStillFetching] = useState(true);
+    const { setToken } = useContext(DocumentationContext);
+    const navigate = useNavigate();
     const auth = getAuth();
     const user = auth.currentUser;
 
-    // const getDocumentation = async (docType: string, id: string) => {
-    //     const token = await user?.getIdToken();
-    //     setToken(token || '');
-    //     const response = (docType === 'file') ? await fetchDoc(id, token || '') : await fetchRepo(id, token || '');
-    //     return response;
-    // };
     const getDocumentation = async () => {
         const token = await user?.getIdToken();
         setToken(token || '');
@@ -59,14 +52,10 @@ const DocumentationPage: React.FC = () => {
     }, [doc, refetch]);
     
     useEffect(() => {
-        if (isReady() && stillFetching) {
-            setStillFetching(false);
-            if (repoId) {
-                setSelectedFile(doc?.repo.tree[0].id); // high-level repo root directory
-            }
-            else {
-                setSelectedFile(doc?.id);
-                setDocumentation(doc?.markdown_content);
+        if (isReady()) {
+            if (repoId && !fileId) {
+                const rootFile = doc?.repo.tree[0].id;
+                navigate(`/docs/repo/${repoId}/${rootFile}`);
             }
         }
     }, [doc]);
@@ -88,10 +77,7 @@ const DocumentationPage: React.FC = () => {
 
     return (
         <div style={{ display: 'grid', gridTemplateColumns: '20% 80%' }}>
-            <Sidebar />
-            <div>
-                <Editor/>
-            </div>
+            <Outlet />
         </div>
     );
 };
