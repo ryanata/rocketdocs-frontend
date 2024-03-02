@@ -6,7 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Icon } from '@iconify/react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getAuth } from "firebase/auth";
-import { fetchRepos, postDoc, postRepo } from '@/utils/apiUtils';
+import { fetchRepos, postDoc, postIdentify, postConfirm } from '@/utils/apiUtils';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
@@ -14,6 +24,8 @@ type URLType = "repo" | "file" | "invalid";
 
 const DashboardPage: React.FC = () => {
     const [githubFileUrl, setGithubFileUrl] = useState<string>("");
+    const [confirmRepo, setConfirmRepo] = useState<{ id: string, length: number } | null>(null);
+    const [createDocumentationLoading, setCreateDocumentationLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const auth = getAuth();
     const user = auth.currentUser;
@@ -54,10 +66,28 @@ const DashboardPage: React.FC = () => {
         }
     });
 
-    const repoMutation = useMutation(async () => {
+    // Prompt user that the backend has identified N items to document
+    // and ask for confirmation
+    const identifierMutation = useMutation(async () => {
         try {
             const token = await user?.getIdToken() ?? "";
-            const id = await postRepo(token, githubFileUrl);
+            const {id, items_to_document} = await postIdentify(token, githubFileUrl);
+            setConfirmRepo({id, length: items_to_document.length});
+            setCreateDocumentationLoading(false);
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    });
+
+    // Continue the process of creating a documentation after the user has confirmed
+    const confirmRepoMutation = useMutation(async () => {
+        if (!confirmRepo) {
+            throw new Error("No repo to confirm");
+        }
+        try {
+            const token = await user?.getIdToken() ?? "";
+            const id = await postConfirm(token, confirmRepo?.id);
             navigate(`/docs/repo/${id}`);
         } catch (error) {
             console.error(error);
@@ -121,7 +151,8 @@ const DashboardPage: React.FC = () => {
                                     onClick={() => {
                                         const urlType = isRepoUrl(githubFileUrl);
                                         if (urlType === "repo") {
-                                            repoMutation.mutate();
+                                            setCreateDocumentationLoading(true);
+                                            identifierMutation.mutate();
                                         } else if (urlType === "file") {
                                             fileMutation.mutate();
                                         } else {
@@ -129,8 +160,37 @@ const DashboardPage: React.FC = () => {
                                         }
                                     }}
                                 >
-                                    Create Documentation
+                                    {createDocumentationLoading ? (
+                                        <div className="flex justify-center items-center">
+                                            <LoadingSpinner />
+                                        </div>
+                                    ) : (
+                                        "Create Documentation"
+                                    )}
                                 </Button>
+                                <AlertDialog
+                                    open={confirmRepo !== null}
+                                    onOpenChange={(open) => {
+                                        if (!open) {
+                                            setConfirmRepo(null);
+                                        }
+                                    }}
+                                >
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            We have identified {confirmRepo?.length} files to document. Do you want to continue?
+                                        </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => {
+                                            confirmRepoMutation.mutate();
+                                        }}>Continue</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         </div>
                     </div>

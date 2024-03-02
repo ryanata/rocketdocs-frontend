@@ -96,3 +96,48 @@ export const postRepo = async (token: string, githubRepoUrl: string) => {
         throw error;
     }
 }
+
+export const postIdentify = async (token: string, githubUrl: string) => {
+    try {
+        const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/repos/identify' : 'https://notebites.app/repos/identify'}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(
+                {
+                    "github_url": githubUrl
+                }
+            ),
+        });
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export const postConfirm = async (token: string, id: string) => {
+    try {
+        const response = await fetch(`${process.env.NODE_ENV === 'development' ? `repos/${id}/generate` : `https://notebites.app/repos/${id}/generate`}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data.id;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
