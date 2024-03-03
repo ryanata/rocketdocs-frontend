@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Icon } from '@iconify/react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getAuth } from "firebase/auth";
-import { fetchRepos, postDoc, postIdentify, postConfirm } from '@/utils/apiUtils';
+import { fetchRepos, postDoc, postIdentify, postConfirm, deleteRepo } from '@/utils/apiUtils';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -17,6 +17,12 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuTrigger,
+} from "@/components/ui/context-menu"
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
@@ -46,13 +52,13 @@ const DashboardPage: React.FC = () => {
         }
     }
 
-    const { data: repoInfo, error, isLoading } = useQuery(
+    const { data: repoInfo, error, isLoading, refetch } = useQuery(
         ["allRepos"], 
         async () => {
             const token = await user?.getIdToken() ?? "";
             return await fetchRepos(token);
         },
-        { staleTime: 180 }
+        { staleTime: 180, refetchOnWindowFocus: false}
     );
 
     const fileMutation = useMutation(async () => {
@@ -95,6 +101,18 @@ const DashboardPage: React.FC = () => {
         }
     });
 
+    const deleteRepoMutation = useMutation(async (id: string) => {
+        try {
+            const token = await user?.getIdToken() ?? "";
+            const response = await deleteRepo(id, token);
+            console.log(response);
+            refetch();
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    });
+
     const myDocsHandler = () => {
         if (isLoading) {
             return (
@@ -107,13 +125,21 @@ const DashboardPage: React.FC = () => {
             return <div>Something went wrong...</div>;
         }
         return repoInfo.repos.map((repo: any) => 
-            <MyDocsCard name={repo.name} id={repo.id} status={repo.status} key={repo.id} />
+            <MyDocsCard 
+                name={repo.name} 
+                id={repo.id} 
+                status={repo.status} 
+                deleteHandler={() => {
+                    deleteRepoMutation.mutate(repo.id);
+                }} 
+                key={repo.id} 
+            />
         );
     }
 
 
     return (
-        <div className="h-screen">
+        <div className="h-screen flex flex-col">
             {/* Navbar */}
             <div className="flex justify-between items-center px-8 bg-light-purple">
                 <img src={rocketdocsLogo} alt="RocketDocs Logo" className="my-2" />
@@ -159,6 +185,7 @@ const DashboardPage: React.FC = () => {
                                             alert("Invalid URL");
                                         }
                                     }}
+                                    disabled={createDocumentationLoading}
                                 >
                                     {createDocumentationLoading ? (
                                         <div className="flex justify-center items-center">
@@ -184,9 +211,14 @@ const DashboardPage: React.FC = () => {
                                         </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogCancel onClick={() => {
+                                            if (confirmRepo) {
+                                                deleteRepoMutation.mutate(confirmRepo.id);
+                                            }
+                                        }}>Cancel</AlertDialogCancel>
                                         <AlertDialogAction onClick={() => {
                                             confirmRepoMutation.mutate();
+                                            setConfirmRepo(null);
                                         }}>Continue</AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -216,7 +248,7 @@ const DashboardPage: React.FC = () => {
                 </div>
             </div>
             {/* My Docs */}
-            <div className="bg-light-purple h-full py-3 px-8">
+            <div className="bg-light-purple flex flex-col flex-1 py-3 px-8">
                 <h1 className="text-3xl tracking-wide font-semibold mb-4">My docs</h1>
                 <div className='flex flex-wrap gap-10 justify-start'>
                     {myDocsHandler()}
@@ -227,7 +259,7 @@ const DashboardPage: React.FC = () => {
     );
 };
 
-const MyDocsCard = ({name, id, status}: {name: string, id: string, status: string}) => {
+const MyDocsCard = ({name, id, status, deleteHandler}: {name: string, id: string, status: string, deleteHandler: () => void}) => {
     const navigate = useNavigate();
     const generateUrl = () => {
         // Get current url
@@ -239,25 +271,32 @@ const MyDocsCard = ({name, id, status}: {name: string, id: string, status: strin
         return urlArray.join("/") + `/docs/repo/${id}`;
     }
     return (
-        <div 
-            className="flex flex-col w-[25rem] h-40 p-2 bg-slate-100 border-2 border-slate-800 rounded-lg hover:bg-light-purple"
-            onClick={() => navigate(`/docs/repo/${id}`)}
-        >
-            <div className="flex justify-between gap-2">
-                <Icon icon="devicon:github" width={32} height={32} />
-                <div className="flex flex-col gap-2">
-                    <h1 className='text-2xl font-light'>{name}</h1>
-                    <p className='text-sm font-light'>{generateUrl()}</p>
+        <ContextMenu>
+            <ContextMenuTrigger>
+                <div 
+                    className="flex flex-col w-[25rem] h-40 p-2 bg-slate-100 border-2 border-slate-800 rounded-lg hover:bg-light-purple"
+                    onClick={() => navigate(`/docs/repo/${id}`)}
+                >
+                    <div className="flex justify-between gap-2">
+                        <Icon icon="devicon:github" width={32} height={32} />
+                        <div className="flex flex-col gap-2">
+                            <h1 className='text-2xl font-light'>{name}</h1>
+                            <p className='text-sm font-light'>{generateUrl()}</p>
+                        </div>
+                    </div>
+                    <div className='flex flex-col flex-1 justify-center'>
+                        <h2 className='text-sm font-light text-slate-600'>Status</h2>
+                        <div className="flex gap-2 items-center">
+                            <div className={`w-4 h-4 rounded-full ${status === 'FAILED' ? 'bg-red-500' : status === 'COMPLETED' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                            <p className="text-sm font-light capitalize">{status.toLowerCase()}</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div className='flex flex-col flex-1 justify-center'>
-                <h2 className='text-sm font-light text-slate-600'>Status</h2>
-                <div className="flex gap-2 items-center">
-                    <div className={`w-4 h-4 rounded-full ${status === 'FAILED' ? 'bg-red-500' : status === 'COMPLETED' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
-                    <p className="text-sm font-light capitalize">{status.toLowerCase()}</p>
-                </div>
-            </div>
-        </div>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+                <ContextMenuItem onClick={deleteHandler}>Delete</ContextMenuItem>
+            </ContextMenuContent>
+        </ContextMenu>
     );
 }
 

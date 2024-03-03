@@ -46,6 +46,25 @@ export const fetchRepos = async (token: string) => {
     return response.json();
 }
 
+export const deleteRepo = async (id: string, token: string) => {
+    try{
+        const response = await fetch(`${process.env.NODE_ENV === 'development' ? `/repos/` : 'https://notebites.app/repos/'}${id}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
 export const postDoc = async (token: string, githubFileUrl: string) => {
     try {
         const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs' : 'https://notebites.app/file-docs'}`, {
