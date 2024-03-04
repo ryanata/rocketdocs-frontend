@@ -46,6 +46,25 @@ export const fetchRepos = async (token: string) => {
     return response.json();
 }
 
+export const deleteRepo = async (id: string, token: string) => {
+    try{
+        const response = await fetch(`${process.env.NODE_ENV === 'development' ? `/repos/` : 'https://notebites.app/repos/'}${id}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
 export const postDoc = async (token: string, githubFileUrl: string) => {
     try {
         const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/file-docs' : 'https://notebites.app/file-docs'}`, {
@@ -85,6 +104,51 @@ export const postRepo = async (token: string, githubRepoUrl: string) => {
                     "github_url": githubRepoUrl
                 }
             ),
+        });
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data.id;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export const postIdentify = async (token: string, githubUrl: string) => {
+    try {
+        const response = await fetch(`${process.env.NODE_ENV === 'development' ? '/repos/identify' : 'https://notebites.app/repos/identify'}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(
+                {
+                    "github_url": githubUrl
+                }
+            ),
+        });
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export const postConfirm = async (token: string, id: string) => {
+    try {
+        const response = await fetch(`${process.env.NODE_ENV === 'development' ? `repos/${id}/generate` : `https://notebites.app/repos/${id}/generate`}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
         });
         if (!response.ok) {
             throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
