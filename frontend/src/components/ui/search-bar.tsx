@@ -52,6 +52,25 @@ const SearchBar = () => {
         return result;
     };
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            // Check if 'Command' (or 'Control' for Windows) and 'K' keys were pressed
+            if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+                // Prevent the default action to avoid unwanted behavior
+                event.preventDefault();
+                // Toggle the 'open' state
+                setOpen(prevOpen => !prevOpen);
+            }
+        };
+    
+        // Add event listener
+        window.addEventListener('keydown', handleKeyDown);
+    
+        // Cleanup
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
 
     useEffect(() => {
         if (searchResults.length === 0) return;
@@ -126,7 +145,7 @@ const SearchBar = () => {
     
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger className="absolute top-[20px] border border-slate-300 px-2 py-1 rounded-sm w-72 text-left text-slate-500" onClick={() => setSearchTerm("")}>
+            <DialogTrigger className="relative border border-slate-300 px-2 py-1 rounded-sm w-72 text-left text-slate-500" onClick={() => setSearchTerm("")}>
                 <div className="flex justify-between items-center">
                     <span>Search documentation...</span>
                     <kbd className="pointer-events-none w-7 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">

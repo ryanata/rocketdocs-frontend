@@ -2,9 +2,8 @@ import * as React from "react"
 import { useState } from "react";
 import { useQueryClient } from "react-query";
 import { useParams, useNavigate } from "react-router-dom";
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Icon } from "@iconify/react";
-import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
 
 const Sidebar: React.FC = () => {
     const { repoId, fileId } = useParams<{ repoId?: string, fileId: string }>();
@@ -61,23 +60,20 @@ const Sidebar: React.FC = () => {
     // rest of the code...
 
     return (
-        <div className={`inline-flex flex-col`} style={{background: "linear-gradient(270deg, #EBEBF0 0%, rgba(246, 245, 251, 0.33) 37.5%, #F6F5FB 100%)", height: "100vh"}}>
-            <img src={rocketdocsLogo} alt="RocketDocs Logo" className="mx-8" />
-            <ScrollArea>
-                <div className="flex flex-col mt-8 ml-2 mr-4">
-                    {repoId ?
-                        response?.repo.tree[0].children.map((child: any) => {
-                            const [_, childComponent] = createFileTree(child);
-                            return childComponent;
-                        })
-                        :
-                        (
-                            <File name={getFileNameFromPath(response?.relative_path)} id={response?.id} clickHandler={selectFileHandler} isSelected={response.id === fileId}/>
-                        )
-                    }
-                </div>
-            </ScrollArea>
-        </div>
+        <ScrollArea className="fixed" style={{background: "linear-gradient(270deg, #EBEBF0 0%, rgba(246, 245, 251, 0.33) 37.5%, #F6F5FB 100%)"}}>
+            <div className="flex flex-col mt-4 ml-2 mr-4">
+                {repoId ?
+                    response?.repo.tree[0].children.map((child: any) => {
+                        const [_, childComponent] = createFileTree(child);
+                        return childComponent;
+                    })
+                    :
+                    (
+                        <File name={getFileNameFromPath(response?.relative_path)} id={response?.id} clickHandler={selectFileHandler} isSelected={response.id === fileId}/>
+                    )
+                }
+            </div>
+        </ScrollArea>
     )
 }
 

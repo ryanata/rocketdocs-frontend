@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
+import rocketdocsLogo from '../assets/Logo_48x48.svg';
 import { useNavigate } from 'react-router-dom';
 // import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import rocketPicture from '../assets/image-1000x1000.png';
@@ -32,7 +32,10 @@ const SignUpPage: React.FC = () =>
             <div className="border-r-2 border" style={{ width: '50%', height: "100%"}}>
                 {/* Header */}
                 <div className="flex justify-between items-center mx-8">
-                    <img src={rocketdocsLogo} alt="RocketDocs Logo" />
+                    <div className="flex items-center">
+                        <img src={rocketdocsLogo} alt="RocketDocs Logo" className="p-1" />
+                        <span className="text-[32px] font-semibold pb-1" style={{ fontFamily: 'Quicksand', color: '#7553FF' }}>rocketdocs</span>
+                    </div>
                 </div>
 
                 {/* Splash Text*/}

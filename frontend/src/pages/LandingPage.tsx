@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
+import rocketdocsLogo from '../assets/Logo_48x48.svg';
 import page from '../assets/page.png';
 import { Icon } from '@iconify/react';
 
@@ -12,7 +12,10 @@ const LandingPage: React.FC = () => {
     return (
         <div className="flex flex-col bg-gradient-to-b from-white via-white via-60% to-violet-300 h-screen overflow-hidden">
             <div className="flex justify-between items-center mx-8">
-                <img src={rocketdocsLogo} alt="RocketDocs Logo" />
+                <div className="flex items-center">
+                    <img src={rocketdocsLogo} alt="RocketDocs Logo" className="p-1" />
+                    <span className="text-[32px] font-semibold pb-1" style={{ fontFamily: 'Quicksand', color: '#7553FF' }}>rocketdocs</span>
+                </div>
                 <div className="flex items-center space-x-1">
                     <Button className="text-xl" variant="empty" onClick={() => navigate('/signup')}>How It Works <Icon icon="ic:round-keyboard-arrow-down" /></Button> 
                     <Button className="text-xl" variant="empty" onClick={() => navigate('/signup')}>Features <Icon icon="ic:round-keyboard-arrow-down" /></Button> 

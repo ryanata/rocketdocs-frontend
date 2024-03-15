@@ -57,7 +57,7 @@ const LexicalEditor = (props: LexicalEditorProps) => {
       editable: props.editable,
     }}>
         <div className="flex flex-col gap-4">
-            <div className="inline-flex justify-end p-4">
+            <div className="inline-flex justify-end px-4 pt-4">
                 <ToggleEditable isEditorVisible={props.editable} setEditorVisible={props.setEditable} />
             </div>
             {props.editable && <Toolbar />}
