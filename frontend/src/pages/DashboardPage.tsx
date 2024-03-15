@@ -58,7 +58,7 @@ const DashboardPage: React.FC = () => {
     }
 
     const getRepos = async () => {
-        const githubAccessToken = localStorage.getItem("githubAccessToken");
+        const githubAccessToken = sessionStorage.getItem("githubAccessToken");
         if (githubAccessToken) {
             
             const octokit = new Octokit({

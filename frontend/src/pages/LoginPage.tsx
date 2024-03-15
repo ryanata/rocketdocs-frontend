@@ -41,7 +41,7 @@ const LoginPage: React.FC = () =>
                     const github_token = credential.accessToken;
                     // Now you can use this token to access GitHub API or perform other tasks
                     if (github_token) {
-                        localStorage.setItem("githubAccessToken", github_token);
+                        sessionStorage.setItem("githubAccessToken", github_token);
                     }
                 }
                 
