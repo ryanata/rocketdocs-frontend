@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -25,16 +25,21 @@ import {
 } from "@/components/ui/context-menu"
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import rocketdocsLogo from '../assets/Logo_48x48.svg';
+import { Octokit } from 'octokit';
 
 type URLType = "repo" | "file" | "invalid";
 
 const DashboardPage: React.FC = () => {
     const [githubFileUrl, setGithubFileUrl] = useState<string>("");
     const [confirmRepo, setConfirmRepo] = useState<{ id: string, length: number } | null>(null);
-    const [createDocumentationLoading, setCreateDocumentationLoading] = useState<boolean>(false);
+    const [createDocumentationLoading, setCreateDocumentationLoading] = useState<boolean>(false); 
+    const [repoMap, setRepoMap] = useState<Record<string, string>>({});
+    
     const navigate = useNavigate();
     const auth = getAuth();
     const user = auth.currentUser;
+
+    
 
     const isRepoUrl = (url: string): URLType => {
         const repoRegex = /^https:\/\/github\.com\/[^\/]+\/[^\/]+\/?$/;
@@ -51,6 +56,38 @@ const DashboardPage: React.FC = () => {
             return "invalid";
         }
     }
+
+    const getRepos = async () => {
+        const githubAccessToken = localStorage.getItem("githubAccessToken");
+        if (githubAccessToken) {
+            
+            const octokit = new Octokit({
+                auth: githubAccessToken,
+              })
+              
+             const response = await octokit.request('GET /user/repos', {
+                headers: {
+                  'X-GitHub-Api-Version': '2022-11-28'
+                }
+              })
+              
+            console.log(response);
+
+            const repo_map: Record<string, string> = {};
+            
+            response.data.forEach(repo => {
+                repo_map[repo.name] = repo.svn_url;
+            });
+            
+            setRepoMap(repo_map);
+        } else {
+            console.error("GitHub access token not found in localStorage.");
+        }
+    }
+
+    useEffect(() => {
+        getRepos();
+    }, []);
 
     const { data: repoInfo, error, isLoading, refetch } = useQuery(
         ["allRepos"], 
@@ -173,7 +210,16 @@ const DashboardPage: React.FC = () => {
                                     className="pl-12 text-2xl h-12 bg-slate-100"
                                     value={githubFileUrl}
                                     onChange={(e) => setGithubFileUrl(e.target.value)}
-                                />                                
+                                    list='repoSuggestions'
+                                />          
+                                <datalist id="repoSuggestions">
+                                {/* Render options based on repoMap */}
+                                {Object.entries(repoMap).map(([name, url]) => (
+                                    <option key={url} value={url}>
+                                        {name}
+                                    </option>
+                                ))}
+                                </datalist>                    
                                 <Icon icon="devicon:github" width={32} height={32} className="absolute left-3 top-1/2 transform -translate-y-1/2" />
                             </div>
                             <div className="flex justify-center">

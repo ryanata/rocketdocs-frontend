@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, signInWithEmailAndPassword, GithubAuthProvider, signInWithPopup  } from "firebase/auth";
 import rocketdocsLogo from '../assets/Logo_48x48.svg';
 import { useNavigate } from 'react-router-dom';
 import rocketPicture from '../assets/image-1000x1000.png';
@@ -12,6 +12,8 @@ const LoginPage: React.FC = () =>
     const [password, setPassword] = useState<string>("");
     const navigate = useNavigate();
     const auth = getAuth();
+    const provider = new GithubAuthProvider();
+    provider.addScope('repo');
 
     const signIn = async () => {
         try {
@@ -24,7 +26,38 @@ const LoginPage: React.FC = () =>
             console.log(error);
         }
     }
+
     
+    const signInGithub = async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+
+            if (result) {
+                // Extract GitHub credential from the result
+                const credential = GithubAuthProvider.credentialFromResult(result);
+
+                if (credential) {
+                    // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+                    const github_token = credential.accessToken;
+                    // Now you can use this token to access GitHub API or perform other tasks
+                    if (github_token) {
+                        localStorage.setItem("githubAccessToken", github_token);
+                    }
+                }
+                
+                
+                // The signed-in user info.
+                const user = result.user;
+                console.log(user);
+                navigate('/dashboard');
+            } else {
+                console.error("Redirect result is null.");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return(
         <div className="h-screen flex flex-row">
             <div className="border-r-2 border" style={{ width: '50%', height: "100%"}}>
@@ -60,6 +93,13 @@ const LoginPage: React.FC = () =>
                     onClick={signIn}
                 >
                     Log In
+                </Button>
+                <Button  
+                    className="text-md text-2xl w-1/2 mt-12 ml-56 h-12"
+                    style={{ backgroundColor: 'black' }}
+                    onClick={signInGithub}
+                >
+                    Sign in with Github
                 </Button>
                 <div className="flex items-center space-x-4">
                     <p className='mt-4 text-2xl pl-64'>Don't have an account?</p>
