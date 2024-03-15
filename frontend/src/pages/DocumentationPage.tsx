@@ -96,7 +96,7 @@ const DocumentationPageContainer: React.FC = () => {
     );
 };
 
-const Navbar: React.FC = () => {
+const Navbar: React.FC<{ enableSearch?: boolean }> = ({ enableSearch = true }) => {
     const navigate = useNavigate();
 
     return (
@@ -105,9 +105,9 @@ const Navbar: React.FC = () => {
                 <img src={rocketdocsLogo} alt="RocketDocs Logo" className="p-1" />
                 <span className="text-[32px] font-semibold pb-1" style={{ fontFamily: 'Quicksand', color: '#7553FF' }}>rocketdocs</span>
             </div>
-            <div>
+            {enableSearch && <div>
                 <SearchBar/>
-            </div>
+            </div>}
             <div className="px-8">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -134,7 +134,7 @@ const Navbar: React.FC = () => {
     )
 }
 
-const RepoDocumentationPage: React.FC = () => {
+const DocumentPageLayout: React.FC<{ enableSearch?: boolean, children: React.ReactNode }> = ({ enableSearch = true, children }) => {
     const [remainingHeight, setRemainingHeight] = useState(0);
 
     useEffect(() => {
@@ -159,26 +159,35 @@ const RepoDocumentationPage: React.FC = () => {
         }
     }, []);
 
-    console.log(remainingHeight);
     return (
         <>
-            <Navbar/>
+            <Navbar enableSearch={enableSearch}/>
             <div style={{ display: 'grid', gridTemplateColumns: '20% 80%', height: remainingHeight }}>
-                <Sidebar />
-                <ScrollArea>
-                    <Editor/>
-                </ScrollArea>
+                {children}
             </div>
         </>
+    )
+}
+
+const RepoDocumentationPage: React.FC = () => {
+    return (
+        <DocumentPageLayout>
+            <Sidebar />
+            <ScrollArea>
+                <Editor/>
+            </ScrollArea>
+        </DocumentPageLayout>
     )
 };
 
 const FileDocumentationPage: React.FC = () => {
     return (
-        <>
+        <DocumentPageLayout enableSearch={false}>
             <Sidebar />
-            <Editor/>
-        </>
+            <ScrollArea>
+                <Editor/>
+            </ScrollArea>
+        </DocumentPageLayout>
     )
 }
 export {DocumentationPageContainer, RepoDocumentationPage, FileDocumentationPage};

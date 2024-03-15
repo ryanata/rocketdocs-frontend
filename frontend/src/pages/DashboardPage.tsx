@@ -66,8 +66,10 @@ const DashboardPage: React.FC = () => {
             const token = await user?.getIdToken() ?? "";
             const id = await postDoc(token, githubFileUrl);
             navigate(`/docs/file/${id}`);
+            setCreateDocumentationLoading(false);
         } catch (error) {
             console.error(error);
+            setCreateDocumentationLoading(false);
             throw error;
         }
     });
@@ -82,6 +84,7 @@ const DashboardPage: React.FC = () => {
             setCreateDocumentationLoading(false);
         } catch (error) {
             console.error(error);
+            setCreateDocumentationLoading(false);
             throw error;
         }
     });
@@ -183,6 +186,7 @@ const DashboardPage: React.FC = () => {
                                             setCreateDocumentationLoading(true);
                                             identifierMutation.mutate();
                                         } else if (urlType === "file") {
+                                            setCreateDocumentationLoading(true);
                                             fileMutation.mutate();
                                         } else {
                                             alert("Invalid URL");
