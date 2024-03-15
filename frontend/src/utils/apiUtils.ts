@@ -160,3 +160,23 @@ export const postConfirm = async (token: string, id: string) => {
         throw error;
     }
 }
+
+export const searchRepo = async (token: string, repo_id: string, query: string) => {
+    try {
+        const response = await fetch(`${process.env.NODE_ENV === 'development' ? `/repos/${repo_id}/search?query=${query}` : `https://notebites.app/repos/${repo_id}/search?query=${query}`}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}

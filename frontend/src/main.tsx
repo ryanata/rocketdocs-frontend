@@ -4,6 +4,7 @@ import { initializeApp } from 'firebase/app';
 import ProtectedRoute from './utils/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import DocumentationPage from './pages/DocumentationPage';
+import { SearchBar } from "./components/ui/search-bar";
 import Sidebar from './components/sidebar';
 import Editor from './components/editor';
 import LoginPage from './pages/LoginPage';
@@ -38,7 +39,12 @@ const router = createBrowserRouter([
         element: (
           <>
             <Sidebar />
-            <Editor/>
+            <div>
+              <div className="flex justify-center">
+                <SearchBar/>
+              </div>
+              <Editor/>
+            </div>
           </>
         )
       }
