@@ -24,7 +24,7 @@ import {
     ContextMenuTrigger,
 } from "@/components/ui/context-menu"
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import rocketdocsLogo from '../assets/rocketdocs_logo.svg';
+import rocketdocsLogo from '../assets/Logo_48x48.svg';
 
 type URLType = "repo" | "file" | "invalid";
 
@@ -66,8 +66,10 @@ const DashboardPage: React.FC = () => {
             const token = await user?.getIdToken() ?? "";
             const id = await postDoc(token, githubFileUrl);
             navigate(`/docs/file/${id}`);
+            setCreateDocumentationLoading(false);
         } catch (error) {
             console.error(error);
+            setCreateDocumentationLoading(false);
             throw error;
         }
     });
@@ -82,6 +84,7 @@ const DashboardPage: React.FC = () => {
             setCreateDocumentationLoading(false);
         } catch (error) {
             console.error(error);
+            setCreateDocumentationLoading(false);
             throw error;
         }
     });
@@ -142,7 +145,10 @@ const DashboardPage: React.FC = () => {
         <div className="h-screen flex flex-col">
             {/* Navbar */}
             <div className="flex justify-between items-center px-8 bg-light-purple">
-                <img src={rocketdocsLogo} alt="RocketDocs Logo" className="my-2" />
+                <div className="flex items-center">
+                    <img src={rocketdocsLogo} alt="RocketDocs Logo" className="p-1" />
+                    <span className="text-[32px] font-semibold pb-1" style={{ fontFamily: 'Quicksand', color: '#7553FF' }}>rocketdocs</span>
+                </div>
                 <Avatar>
                     <AvatarImage src="https://github.com/shadcn.png" />
                     <AvatarFallback>CN</AvatarFallback>
@@ -180,6 +186,7 @@ const DashboardPage: React.FC = () => {
                                             setCreateDocumentationLoading(true);
                                             identifierMutation.mutate();
                                         } else if (urlType === "file") {
+                                            setCreateDocumentationLoading(true);
                                             fileMutation.mutate();
                                         } else {
                                             alert("Invalid URL");

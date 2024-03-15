@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { initializeApp } from 'firebase/app';
 import ProtectedRoute from './utils/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
-import DocumentationPage from './pages/DocumentationPage';
-import Sidebar from './components/sidebar';
-import Editor from './components/editor';
+import { DocumentationPageContainer, RepoDocumentationPage, FileDocumentationPage } from './pages/DocumentationPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import '../app/globals.css';
@@ -31,30 +29,24 @@ const router = createBrowserRouter([
   },
   {
     path: "docs/repo/:repoId",
-    element: <DocumentationProvider><ProtectedRoute component={DocumentationPage} /></DocumentationProvider>,
+    element: <DocumentationProvider><ProtectedRoute component={DocumentationPageContainer} /></DocumentationProvider>,
     children: [
       {
         path: ":fileId",
         element: (
-          <>
-            <Sidebar />
-            <Editor/>
-          </>
+          <RepoDocumentationPage />
         )
       }
     ]
   },
   {
     path: "docs/file/:fileId",
-    element: <DocumentationProvider><ProtectedRoute component={DocumentationPage} /></DocumentationProvider>,
+    element: <DocumentationProvider><ProtectedRoute component={DocumentationPageContainer} /></DocumentationProvider>,
     children: [
       {
         path: "",
         element: (
-          <>
-            <Sidebar />
-            <Editor/>
-          </>
+          <FileDocumentationPage />
         )
       }
     ]
