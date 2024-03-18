@@ -4,8 +4,7 @@ import { initializeApp } from 'firebase/app';
 import ProtectedRoute from './utils/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import { DocumentationPageContainer, RepoDocumentationPage, FileDocumentationPage } from './pages/DocumentationPage';
-import LoginPage from './pages/LoginPage';
-import SignUpPage from './pages/SignUpPage';
+import { LoginPage, SignupPage } from './pages/AuthPages';
 import '../app/globals.css';
 import {
   createBrowserRouter,
@@ -17,6 +16,7 @@ import {
 } from 'react-query'
 import { DocumentationProvider } from './utils/Context';
 import DashboardPage from './pages/DashboardPage';
+import { Toaster } from "@/components/ui/toaster"
 
 const router = createBrowserRouter([
   {
@@ -57,7 +57,7 @@ const router = createBrowserRouter([
   },
   {
     path:"signup",
-    element: <SignUpPage/>
+    element: <SignupPage/>
   },
 ]);
 
@@ -80,6 +80,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <Toaster />
     </QueryClientProvider>
   </React.StrictMode>,
 )

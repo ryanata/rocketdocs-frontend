@@ -35,6 +35,8 @@
     --radius: 0.5rem;
 
     --light-purple: 252 100% 68% / 21%;
+    --dark-purple: 256 73% 26%;
+
   }
  
   .dark {
@@ -67,6 +69,7 @@
     --ring: 212.7 26.8% 83.9%;
 
     --light-purple: 252 100% 66% / 21%;
+    --dark-purple: 256 73% 26%;
   }
 }
  
