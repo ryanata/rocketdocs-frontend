@@ -17,7 +17,7 @@ const LandingPage: React.FC = () => {
                     <span className="text-[32px] font-semibold pb-1" style={{ fontFamily: 'Quicksand', color: '#7553FF' }}>rocketdocs</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                    <Button className="text-xl" variant="empty" onClick={() => navigate('/signup')}>How It Works <Icon icon="ic:round-keyboard-arrow-down" /></Button> 
+                    <Button className="text-xl" variant="empty" onClick={() => navigate('/howitworks')}>How It Works <Icon icon="ic:round-keyboard-arrow-down" /></Button> 
                     <Button className="text-xl" variant="empty" onClick={() => navigate('/signup')}>Features <Icon icon="ic:round-keyboard-arrow-down" /></Button> 
                     <Button className="text-xl" variant="empty" onClick={() => navigate('/signup')}>Examples <Icon icon="ic:round-keyboard-arrow-down" /></Button> 
                 </div>

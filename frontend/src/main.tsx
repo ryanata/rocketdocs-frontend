@@ -5,6 +5,7 @@ import ProtectedRoute from './utils/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import { DocumentationPageContainer, RepoDocumentationPage, FileDocumentationPage } from './pages/DocumentationPage';
 import { LoginPage, SignupPage } from './pages/AuthPages';
+import HowItWorksPage from './pages/HowItWorksPage'
 import '../app/globals.css';
 import {
   createBrowserRouter,
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
   {
     path:"signup",
     element: <SignupPage/>
+  },
+  {
+    path:"howitworks",
+    element: <HowItWorksPage/>
   },
 ]);
 
