@@ -102,7 +102,7 @@ const Navbar: React.FC<{ enableSearch?: boolean }> = ({ enableSearch = true }) =
     return (
         <div id="navbar" className="flex justify-between items-center border">
             <div className="flex items-center">
-                <img src={rocketdocsLogo} alt="RocketDocs Logo" className="p-1" />
+                <img src={rocketdocsLogo} alt="RocketDocs Logo" className="w-[42px] ml-3 mr-1 p-1" />
                 <span className="text-[32px] font-semibold pb-1" style={{ fontFamily: 'Quicksand', color: '#7553FF' }}>rocketdocs</span>
             </div>
             {enableSearch && <div>

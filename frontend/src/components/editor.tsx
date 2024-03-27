@@ -57,9 +57,6 @@ const LexicalEditor = (props: LexicalEditorProps) => {
       editable: props.editable,
     }}>
         <div className="flex flex-col gap-4">
-            <div className="inline-flex justify-end px-4 pt-4">
-                <ToggleEditable isEditorVisible={props.editable} setEditorVisible={props.setEditable} />
-            </div>
             {props.editable && <Toolbar />}
             <div className={`${props.editable ? "border-stone-300 border-2 rounded" : ""}`}>
               <RichTextPlugin
@@ -76,27 +73,7 @@ const LexicalEditor = (props: LexicalEditorProps) => {
   );
 }
 
-const ToggleEditable = ({ isEditorVisible, setEditorVisible }: { isEditorVisible: boolean, setEditorVisible: React.Dispatch<React.SetStateAction<boolean>> }) => {
-    const [editor] = useLexicalComposerContext();
 
-    const toggleEditing = (status: boolean) => {
-        setEditorVisible(status);
-        editor.setEditable(status);
-    }
-
-    return (
-        <Button 
-          className={`${isEditorVisible ? 'bg-red-200 hover:bg-red-100' : ''}`} 
-          variant={isEditorVisible ? 'empty' : 'default'}
-          onClick={() => toggleEditing(!isEditorVisible)}
-        >
-            <div className='mr-2'>
-              {isEditorVisible ? <Icon icon="bx:hide" /> : <Icon icon="bx:edit" />}
-            </div>
-            {isEditorVisible ? 'Hide' : 'Show'} Editor
-        </Button>
-    );
-}
 
 const Placeholder = () => {
   return (

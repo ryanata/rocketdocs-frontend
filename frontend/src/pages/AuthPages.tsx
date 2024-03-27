@@ -52,7 +52,7 @@ const AuthPage: React.FC<{ authAction: AuthAction, authHandler: (email: string, 
                 {/* Logo */}
                 <div className="flex justify-between items-center mx-8">
                     <a className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
-                        <img src={rocketdocsLogo} alt="RocketDocs Logo" className="p-1" />
+                        <img src={rocketdocsLogo} alt="RocketDocs Logo" className="w-[42px] ml-3 mr-1 p-1" />
                         <span className="text-[32px] font-semibold pb-1" style={{ fontFamily: 'Quicksand', color: '#7553FF' }}>rocketdocs</span>
                     </a>
                 </div>
