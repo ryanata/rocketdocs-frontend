@@ -10,6 +10,13 @@ import { useQueryClient } from 'react-query';
 import { searchRepo } from "../../utils/apiUtils";
 import { DocumentationContext } from '@/utils/Context';
 import { Icon } from '@iconify/react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { getAuth } from 'firebase/auth';
 
 type SearchResultType = {
     doc_id: string;
@@ -26,11 +33,44 @@ const SearchBar = () => {
     const [flattenedTree, setFlattenedTree] = useState<FlattenedTreeType>({});
     const [searchResults, setSearchResults] = useState<SearchResultType[]>([]);
     const [cachedResults, setCachedResults] = useState<SearchResultCacheType>({});
+    const [askingChatbot, setAskingChatbot] = useState(false);
+    const [events, setEvents] = useState<any[]>([]);
     const resultRefs = useRef<HTMLElement[]>([]);
     const debouncedSearchTerm = useDebounced(searchTerm, 750);
     const { repoId } = useParams<{ repoId?: string }>();
     const { token } = useContext(DocumentationContext);
+    const auth = getAuth();
+    const user = auth.currentUser;
     const queryClient = useQueryClient();
+
+    const parseImpropertData = (data: string) => {
+        const action = data.split("'action': '")[1].split("',")[0];
+        const output = data.split("'output': '")[1].split("'}")[0];
+        return {action, output}
+    }
+
+    const handleTooltipTriggerClick = () => {
+        const baseUrl = process.env.NODE_ENV === 'development' ? window.location.origin : 'https://notebites.app';
+        const url = new URL(`${baseUrl}/repos/${repoId}/chat`);
+        url.searchParams.append('query', searchTerm);
+        url.searchParams.append('user_id', user?.uid || '');
+
+    
+        const eventSource = new EventSource(url.toString());
+        setEvents([]);
+        setAskingChatbot(true);
+        eventSource.onmessage = (event) => {
+            if (!event) {
+                eventSource.close();
+            }
+            setEvents(prevEvents => [...prevEvents, parseImpropertData(event.data)]);
+        };
+    
+        eventSource.onerror = (error) => {
+            console.error("EventSource failed:", error);
+            eventSource.close();
+        };
+    };
 
     // Function to add a new ref to the array
     const addToRefs = (el: HTMLElement | null, index: number) => {
@@ -143,6 +183,8 @@ const SearchBar = () => {
         }
     }, [repoId]);
     
+    console.log(events)
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="relative border border-slate-300 px-2 py-1 rounded-sm w-72 text-left text-slate-500" onClick={() => setSearchTerm("")}>
@@ -156,37 +198,72 @@ const SearchBar = () => {
             </DialogTrigger>
             <DialogContent className="top-[30%] p-0">
                 <div 
-                    className="flex flex-col items-center justify-center border-b border-gray-300" 
+                    className="flex items-center justify-center border-b border-gray-300" 
                     style={{ 
                         maxWidth: 'inherit'
                     }}
                 >
                     <textarea 
-                        className="resize-none w-11/12 px-3 pt-2 text-gray-700 focus:outline-none h-10" 
+                        className="resize-none w-[88%] px-3 pt-2 text-gray-700 focus:outline-none h-10" 
                         placeholder="Search docs" 
                         value={searchTerm} 
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => {
+                            setAskingChatbot(false);
+                            setSearchTerm(e.target.value);
+                        }}
                     ></textarea>
+                    <TooltipProvider delayDuration={100}>
+                        <Tooltip>
+                            <TooltipTrigger onClick={handleTooltipTriggerClick}>
+                                <div className="flex justify-center items-center w-10 h-10 rounded-full hover:bg-gray-200">
+                                    <Icon icon="fluent:bot-sparkle-24-regular" width={28} height={28}/>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p >Ask AI</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
                 <div className="flex flex-col gap-3 mb-2" style={{ maxWidth: 'inherit' }}>
-                    {searchResults.length === 0 ? (
-                        <div className="flex justify-center items-center py-8">
-                            <p className="text-gray-500 font-light">Start typing to search across your repo's documentation</p>
-                            {/* Add more default content here */}
-                        </div>
-                    ) : (
-                        searchResults.map((result, index) => (
-                            <SearchResult 
-                                key={index}
-                                ref={(el) => addToRefs(el, index)}
-                                header={flattenedTree[result.doc_id].path || "/"}
-                                previewText={result.chunk_content}
-                                closeSearchBar={() => setOpen(false)}
-                                redirectFileType={flattenedTree[result.doc_id].type}
-                                redirectUrl={`/docs/repo/${repoId}/${result.doc_id}`}
-                            />
-                        ))
-                    )}
+                    {askingChatbot ? 
+                        (
+                            <div className="px-4">
+                                {
+                                    events.map((event, index) => (
+                                        <div>
+                                            {event.action === "Finish" ?
+                                                <div className="bg-gray-50 mt-2 font-medium">
+                                                    <p className="pl-2 text-md">{event.output}</p>
+                                                </div>
+                                                :
+                                                <p className="pl-2 text-sm font-medium text-gray-500" key={index}>Searching for <code className="text-xs">{event.output}</code></p>
+                                            }
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        )
+                        :
+                        searchResults.length === 0 ? (
+                            <div className="flex justify-center items-center py-8">
+                                <p className="text-gray-500 font-light">Start typing to search across your repo's documentation</p>
+                                {/* Add more default content here */}
+                            </div>
+                        ) : (
+                            searchResults.map((result, index) => (
+                                <SearchResult 
+                                    key={index}
+                                    ref={(el) => addToRefs(el, index)}
+                                    header={flattenedTree[result.doc_id].path || "/"}
+                                    previewText={result.chunk_content}
+                                    closeSearchBar={() => setOpen(false)}
+                                    redirectFileType={flattenedTree[result.doc_id].type}
+                                    redirectUrl={`/docs/repo/${repoId}/${result.doc_id}`}
+                                />
+                            ))
+                        )
+                    }
                 </div>
                 <div className="py-3 px-3 border-t border-gray-300">
                     <div className="flex items-center gap-5">
