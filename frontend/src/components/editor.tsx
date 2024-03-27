@@ -1,11 +1,8 @@
 import { useState, useContext, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Icon } from '@iconify/react';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
     $convertFromMarkdownString,
     ElementTransformer,
