@@ -10,6 +10,12 @@ import { useQueryClient } from 'react-query';
 import { searchRepo } from "../../utils/apiUtils";
 import { DocumentationContext } from '@/utils/Context';
 import { Icon } from '@iconify/react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 type SearchResultType = {
     doc_id: string;
@@ -26,11 +32,29 @@ const SearchBar = () => {
     const [flattenedTree, setFlattenedTree] = useState<FlattenedTreeType>({});
     const [searchResults, setSearchResults] = useState<SearchResultType[]>([]);
     const [cachedResults, setCachedResults] = useState<SearchResultCacheType>({});
+    const [events, setEvents] = useState<any[]>([]);
     const resultRefs = useRef<HTMLElement[]>([]);
     const debouncedSearchTerm = useDebounced(searchTerm, 750);
     const { repoId } = useParams<{ repoId?: string }>();
     const { token } = useContext(DocumentationContext);
     const queryClient = useQueryClient();
+
+    const handleTooltipTriggerClick = () => {
+        const baseUrl = process.env.NODE_ENV === 'development' ? window.location.origin : 'https://notebites.app';
+        const url = new URL(`${baseUrl}/repos/${repoId}/chat`);
+        url.searchParams.append('query', searchTerm);
+    
+        const eventSource = new EventSource(url.toString());
+    
+        eventSource.onmessage = (event) => {
+            setEvents(prevEvents => [...prevEvents, JSON.parse(event.data)]);
+        };
+    
+        eventSource.onerror = (error) => {
+            console.error("EventSource failed:", error);
+            eventSource.close();
+        };
+    };
 
     // Function to add a new ref to the array
     const addToRefs = (el: HTMLElement | null, index: number) => {
@@ -143,6 +167,8 @@ const SearchBar = () => {
         }
     }, [repoId]);
     
+    console.log(events)
+    
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="relative border border-slate-300 px-2 py-1 rounded-sm w-72 text-left text-slate-500" onClick={() => setSearchTerm("")}>
@@ -156,17 +182,29 @@ const SearchBar = () => {
             </DialogTrigger>
             <DialogContent className="top-[30%] p-0">
                 <div 
-                    className="flex flex-col items-center justify-center border-b border-gray-300" 
+                    className="flex items-center justify-center border-b border-gray-300" 
                     style={{ 
                         maxWidth: 'inherit'
                     }}
                 >
                     <textarea 
-                        className="resize-none w-11/12 px-3 pt-2 text-gray-700 focus:outline-none h-10" 
+                        className="resize-none w-[88%] px-3 pt-2 text-gray-700 focus:outline-none h-10" 
                         placeholder="Search docs" 
                         value={searchTerm} 
                         onChange={(e) => setSearchTerm(e.target.value)}
                     ></textarea>
+                    <TooltipProvider delayDuration={100}>
+                        <Tooltip>
+                            <TooltipTrigger onClick={handleTooltipTriggerClick}>
+                                <div className="flex justify-center items-center w-10 h-10 rounded-full hover:bg-gray-200">
+                                    <Icon icon="fluent:bot-sparkle-24-regular" width={28} height={28}/>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p >Ask AI</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
                 <div className="flex flex-col gap-3 mb-2" style={{ maxWidth: 'inherit' }}>
                     {searchResults.length === 0 ? (
