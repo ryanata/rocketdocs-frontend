@@ -146,7 +146,7 @@ const DashboardPage: React.FC = () => {
             {/* Navbar */}
             <div className="flex justify-between items-center px-8 bg-light-purple">
                 <div className="flex items-center">
-                    <img src={rocketdocsLogo} alt="RocketDocs Logo" className="w-10 p-1" />
+                    <img src={rocketdocsLogo} alt="RocketDocs Logo" className="w-[42px] mr-1 p-1" />
                     <span className="text-[32px] font-semibold pb-1" style={{ fontFamily: 'Quicksand', color: '#7553FF' }}>rocketdocs</span>
                 </div>
                 <Avatar>
@@ -160,8 +160,8 @@ const DashboardPage: React.FC = () => {
                 <div className="flex px-8 mt-2" style={{flex: 5}}>
                     <div className="flex flex-1 flex-col">
                         {/* Text container*/}
-                        <div className="flex flex-col gap-2 mb-2">
-                            <h1 className="text-3xl tracking-wide font-semibold">Create new documentation</h1>
+                        <div className="flex flex-col gap-2 mb-2 mt-2">
+                            <h1 className="text-3xl tracking-wide font-medium">Create new documentation</h1>
                             <p className="text-2xl mt-1 font-light">Import an existing GitHub repo or file</p>
                         </div>
                         {/* Input/Button container*/}
@@ -170,11 +170,11 @@ const DashboardPage: React.FC = () => {
                                 <Input
                                     type="url"
                                     placeholder="GitHub file or repo URL"
-                                    className="pl-12 text-2xl h-12 bg-slate-100"
+                                    className="pl-12 text-xl h-12 bg-slate-100"
                                     value={githubFileUrl}
                                     onChange={(e) => setGithubFileUrl(e.target.value)}
                                 />                                
-                                <Icon icon="devicon:github" width={32} height={32} className="absolute left-3 top-1/2 transform -translate-y-1/2" />
+                                <Icon icon="devicon:github" width={30} height={30} className="absolute left-3 top-1/2 transform -translate-y-1/2" />
                             </div>
                             <div className="flex justify-center">
                                 <Button
@@ -256,7 +256,7 @@ const DashboardPage: React.FC = () => {
             </div>
             {/* My Docs */}
             <div className="bg-light-purple flex flex-col flex-1 py-3 px-8">
-                <h1 className="text-3xl tracking-wide font-semibold mb-4">My docs</h1>
+                <h1 className="text-3xl tracking-wide font-medium mb-4">My docs</h1>
                 <div className='flex flex-wrap gap-10 justify-start'>
                     {myDocsHandler()}
                 </div>
@@ -281,7 +281,7 @@ const MyDocsCard = ({name, id, status, deleteHandler}: {name: string, id: string
         <ContextMenu>
             <ContextMenuTrigger>
                 <div 
-                    className="flex flex-col w-[25rem] h-40 p-2 bg-slate-100 border-2 border-slate-800 rounded-lg hover:bg-light-purple"
+                    className="flex flex-col w-[25rem] h-40 p-2 bg-gray-100 border border-gray-400 rounded-lg hover:bg-gray-200"
                     onClick={() => navigate(`/docs/repo/${id}`)}
                 >
                     <div className="flex justify-between gap-2">
