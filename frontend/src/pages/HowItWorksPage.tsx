@@ -44,18 +44,21 @@ const HowItWorksPage: React.FC = () => {
                         <p className="text-2xl text-left font-medium">XYZ Software. From basic functionality to advanced tips and tricks, you'll find everything you need to
                         achieve your goals with our software.<br></br><br></br>In this step of the tutorial, you’ll learn how to set up a listener to receive Events.</p>
                     </div>
-                    <img className="mr-72 translate-y-32 border-0 h-72 drop-shadow-lg" src={howitworks} />
+                    <img className="mr-72 translate-y-32 border-0 h-96 drop-shadow-lg" src={howitworks} />
                 </div>
-                <div className="flex justify-center items-center w-11/12 h-2/3  border-0 p- ">
-                    <div className="flex justify-center items-center w-full h-full bg-[#ebe7fd] rounded-md">
-                        <div className="flex justify-center items-center w-3/12 h-96 border-0 border-black mr-12 rounded-lg bg-white drop-shadow-lg">
-                            
+                <div className="flex  justify-center items-center w-full h-full  border-0 ">
+                    <div className="flex justify-center items-center w-full h-full bg-[#ebe7fd]  py-16">
+                        <div className="flex  flex-col w-3/12 h-96 border-0 border-black mr-12 rounded-lg bg-white drop-shadow-lg text-left">
+                            <h2 className="text-4xl font-semibold ml-4 mt-8">Card 1</h2>
+                            <p className='text-2xl ml-4 mt-4 font-medium'>Description</p>
                         </div>
-                        <div className="flex justify-center items-center w-3/12 h-96 border-0 border-black mr-12 rounded-lg bg-white drop-shadow-lg">
-
+                        <div className="flex  flex-col w-3/12 h-96 border-0 border-black mr-12 rounded-lg bg-white drop-shadow-lg text-left">
+                            <h2 className="text-4xl font-semibold ml-4 mt-8">Card 2</h2>
+                            <p className='text-2xl ml-4 mt-4 font-medium'>Description</p>
                         </div>
-                        <div className="flex justify-center items-center w-3/12 h-96 border-0 border-black rounded-lg bg-white drop-shadow-lg">
-
+                        <div className="flex  flex-col w-3/12 h-96 border-0 border-black rounded-lg bg-white drop-shadow-lg text-left">
+                            <h2 className="text-4xl font-semibold ml-4 mt-8">Card 3</h2>
+                            <p className='text-2xl ml-4 mt-4 font-medium'>Description</p>
                         </div>
                     </div>
                 </div>
