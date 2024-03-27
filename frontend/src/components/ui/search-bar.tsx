@@ -156,7 +156,7 @@ const SearchBar = () => {
             </DialogTrigger>
             <DialogContent className="top-[30%] p-0">
                 <div 
-                    className="flex flex-col items-center justify-center border-b border-black" 
+                    className="flex flex-col items-center justify-center border-b border-gray-300" 
                     style={{ 
                         maxWidth: 'inherit'
                     }}
@@ -171,7 +171,7 @@ const SearchBar = () => {
                 <div className="flex flex-col gap-3 mb-2" style={{ maxWidth: 'inherit' }}>
                     {searchResults.length === 0 ? (
                         <div className="flex justify-center items-center py-8">
-                            <p className="text-slate-400 font-light">Start typing to search across your repo's documentation</p>
+                            <p className="text-gray-500 font-light">Start typing to search across your repo's documentation</p>
                             {/* Add more default content here */}
                         </div>
                     ) : (
@@ -188,22 +188,22 @@ const SearchBar = () => {
                         ))
                     )}
                 </div>
-                <div className="py-3 px-2 border-t border-black">
-                    <div className="flex items-center gap-4">
+                <div className="py-3 px-3 border-t border-gray-300">
+                    <div className="flex items-center gap-5">
                         <div className="flex">
-                            <kbd className="border border-slate-800 bg-gradient-to-r from-slate-50 to-slate-300 rounded-sm p-[2px]"><Icon icon="fluent:arrow-enter-left-24-filled" /></kbd>
-                            <span className="text-slate-400 font-light text-sm">&nbsp;to select</span>
+                            <kbd className="border border-gray-400 bg-gradient-to-r from-gray-50 to-gray-300 rounded-sm p-[2px]"><Icon icon="fluent:arrow-enter-left-24-filled" /></kbd>
+                            <span className="text-gray-500 font-light text-sm">&nbsp;to select</span>
                         </div>
                         <div className="flex">
                             <div className="flex gap-1">
-                                <kbd className="border border-slate-800 bg-gradient-to-r from-slate-50 to-slate-300 rounded-sm p-[2px]"><Icon icon="fluent:arrow-up-24-filled" /></kbd>
-                                <kbd className="border border-slate-800 bg-gradient-to-r from-slate-50 to-slate-300 rounded-sm p-[2px]"><Icon icon="fluent:arrow-down-24-filled" /></kbd>
+                                <kbd className="border border-gray-400 bg-gradient-to-r from-gray-50 to-gray-300 rounded-sm p-[2px]"><Icon icon="fluent:arrow-up-24-filled"/></kbd>
+                                <kbd className="border border-gray-400 bg-gradient-to-r from-gray-50 to-gray-300 rounded-sm p-[2px]"><Icon icon="fluent:arrow-down-24-filled" /></kbd>
                             </div>
-                            <span className="text-slate-400 font-light text-sm">&nbsp;to navigate</span>
+                            <span className="text-gray-500 font-light text-sm">&nbsp;to navigate</span>
                         </div>
                         <div className="flex">
-                            <kbd className="border border-slate-800 bg-gradient-to-r from-slate-50 to-slate-300 rounded-sm p-[2px]"><Icon icon="mdi:keyboard-esc" /></kbd>
-                            <span className="text-slate-400 font-light text-sm">&nbsp;to close</span>
+                            <kbd className="border border-gray-400 bg-gradient-to-r from-gray-50 to-gray-300 rounded-sm p-[2px]"><Icon icon="mdi:keyboard-esc" /></kbd>
+                            <span className="text-gray-500 font-light text-sm">&nbsp;to close</span>
                         </div>
                     </div>
                 </div>
@@ -236,10 +236,10 @@ const SearchResult = forwardRef<HTMLDivElement, SearchResultsProps>(({ header, p
 
     const iconElement = () => {
         if (redirectFileType == "file") {
-            return <Icon icon="solar:document-broken" />
+            return <Icon icon="solar:document-text-linear" />
         }
         if (redirectFileType == "dir") {
-            return <Icon icon="solar:folder-broken" />
+            return <Icon icon="solar:folder-outline" />
         }
     }
 

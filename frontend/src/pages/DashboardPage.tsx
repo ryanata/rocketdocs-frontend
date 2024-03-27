@@ -146,7 +146,7 @@ const DashboardPage: React.FC = () => {
             {/* Navbar */}
             <div className="flex justify-between items-center px-8 bg-light-purple">
                 <div className="flex items-center">
-                    <img src={rocketdocsLogo} alt="RocketDocs Logo" className="p-1" />
+                    <img src={rocketdocsLogo} alt="RocketDocs Logo" className="w-10 p-1" />
                     <span className="text-[32px] font-semibold pb-1" style={{ fontFamily: 'Quicksand', color: '#7553FF' }}>rocketdocs</span>
                 </div>
                 <Avatar>
@@ -162,14 +162,14 @@ const DashboardPage: React.FC = () => {
                         {/* Text container*/}
                         <div className="flex flex-col gap-2 mb-2">
                             <h1 className="text-3xl tracking-wide font-semibold">Create new documentation</h1>
-                            <p className="text-2xl mt-1 font-light">Import an existing Github repo or file</p>
+                            <p className="text-2xl mt-1 font-light">Import an existing GitHub repo or file</p>
                         </div>
                         {/* Input/Button container*/}
                         <div className="flex flex-col gap-6 w-5/6">
                             <div className="relative">
                                 <Input
                                     type="url"
-                                    placeholder="Github file or repo URL"
+                                    placeholder="GitHub file or repo URL"
                                     className="pl-12 text-2xl h-12 bg-slate-100"
                                     value={githubFileUrl}
                                     onChange={(e) => setGithubFileUrl(e.target.value)}
