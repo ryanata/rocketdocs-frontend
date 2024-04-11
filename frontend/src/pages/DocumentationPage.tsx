@@ -46,30 +46,20 @@ const DocumentationPageContainer: React.FC = () => {
         }
     };
 
-    const countCompletedFiles = (tree: any[]) => {
-        let count = 0;
-        tree.forEach(node => {
-            if (node.type === 'file' && node.completion_status === 'COMPLETED') {
-                count++;
-            }
-            if (node.children.length > 0) {
-                count += countCompletedFiles(node.children);
-            }
-        });
-        return count;
+    const countCompletedFiles = (tree: any[]): number => {
+        return tree.reduce((count, node) => {
+          const increment = node.completion_status === 'COMPLETED' ? 1 : 0;
+          const childrenCount: number = node.children.length > 0 ? countCompletedFiles(node.children) : 0;
+          return count + increment + childrenCount;
+        }, 0);
     };
     
-    const countTotalFiles = (tree: any[]) => {
-        let count = 0;
-        tree.forEach(node => {
-            if (node.type === 'file') {
-                count++;
-            }
-            if (node.children.length > 0) {
-                count += countTotalFiles(node.children);
-            }
-        });
-        return count;
+    const countTotalFiles = (tree: any[]): number => {
+        return tree.reduce((count, node) => {
+          const increment = 1;
+          const childrenCount: number = node.children.length > 0 ? countTotalFiles(node.children) : 0;
+          return count + increment + childrenCount;
+        }, 0);
     };
 
     const { data: doc, error, isLoading, refetch } = useQuery(
@@ -124,7 +114,7 @@ const DocumentationPageContainer: React.FC = () => {
                     :
                     <>
                         <p>Generating documentation...</p>
-                        <p>{completed}/{totalFiles} files generated</p>
+                        <p>{completed}/{totalFiles} pages generated</p>
                     </>
                     }
                 </div>
