@@ -5,6 +5,7 @@ import {
     DialogContent,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from 'react-query';
 import { searchRepo } from "../../utils/apiUtils";
@@ -17,6 +18,36 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { getAuth } from 'firebase/auth';
+import { HeadingNode, QuoteNode } from '@lexical/rich-text'
+import { LinkNode } from '@lexical/link'
+import { ListItemNode, ListNode } from '@lexical/list'
+import { MarkNode } from '@lexical/mark'
+import { CodeNode } from '@lexical/code';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
+import { ParagraphNode, $createParagraphNode } from 'lexical';
+import {
+    $convertFromMarkdownString,
+    ElementTransformer,
+    TRANSFORMERS,
+} from '@lexical/markdown';
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { ContentEditable } from '@lexical/react/LexicalContentEditable';
+import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+
+// Empty lines are converted to <br> tags
+const EMPTY_LINE_BREAKS: ElementTransformer = {
+    dependencies: [ParagraphNode],
+    export: () => { return null; },
+    regExp: /^[\n]*$/,
+    replace: (_: any, nodes: any, __: any, isImport: any) => {
+        if (isImport && nodes.length === 1) {
+            nodes[0].replace($createParagraphNode());
+        }
+    },
+    type: "element",
+};
+const CustomTransformers = [...TRANSFORMERS, EMPTY_LINE_BREAKS];
 
 type SearchResultType = {
     doc_id: string;
@@ -45,7 +76,7 @@ const SearchBar = () => {
 
     const parseImpropertData = (data: string) => {
         const action = data.split("'action': '")[1].split("',")[0];
-        const output = data.split("'output': '")[1].split("'}")[0];
+        const output = data.split("'output': ")[1].split("}")[0];
         return {action, output}
     }
 
@@ -160,7 +191,6 @@ const SearchBar = () => {
                 setSearchResults(cached);
             } else {
                 // Perform the search operation here with debouncedSearchTerm
-                console.log("Searching for " + debouncedSearchTerm);
                 searchRepo(token, repoId, debouncedSearchTerm)
                     .then(response => {
                         setSearchResults(response);
@@ -183,8 +213,6 @@ const SearchBar = () => {
         }
     }, [repoId]);
     
-    console.log(events)
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger className="relative border border-slate-300 px-2 py-1 rounded-sm w-72 text-left text-slate-500" onClick={() => setSearchTerm("")}>
@@ -196,7 +224,7 @@ const SearchBar = () => {
                     </kbd>
                 </div>
             </DialogTrigger>
-            <DialogContent className="top-[30%] p-0">
+            <DialogContent className="top-[20%] translate-y-0 p-0">
                 <div 
                     className="flex items-center justify-center border-b border-gray-300" 
                     style={{ 
@@ -233,11 +261,79 @@ const SearchBar = () => {
                                     events.map((event, index) => (
                                         <div>
                                             {event.action === "Finish" ?
-                                                <div className="bg-gray-50 mt-2 font-medium">
-                                                    <p className="pl-2 text-md">{event.output}</p>
+                                                <div className="flex gap-2 mt-2 font-medium">
+                                                    <Icon icon="mage:robot-happy" width={40} height={40}/>
+                                                    {/* <div className="flex flex-1">
+                                                        {event.output}
+                                                    </div> */}
+                                                    <LexicalComposer 
+                                                        key={event.output}
+                                                        initialConfig={{
+                                                            namespace: 'lexical-ai-markdown',
+                                                            theme: {
+                                                                root: `h-full focus:outline-none`,
+                                                                link: 'cursor-pointer',
+                                                                text: {
+                                                                bold: 'font-semibold',
+                                                                underline: 'underline',
+                                                                italic: 'italic',
+                                                                strikethrough: 'line-through',
+                                                                underlineStrikethrough: 'underlined-line-through',
+                                                                },
+                                                                heading: {
+                                                                h1: 'text-4xl font-bold',
+                                                                h2: 'text-3xl font-bold',
+                                                                h3: 'text-2xl font-bold',
+                                                                h4: 'text-xl font-bold',
+                                                                h5: 'text-lg font-bold',
+                                                                h6: 'text-base font-bold',
+                                                                },
+                                                                quote: 'border-l-4 border-slate-500 pl-4',
+                                                                list: {
+                                                                listitem: 'ml-6',
+                                                                listitemChecked: 'pl-2',
+                                                                listitemUnchecked: 'pl-2 text-orange-600',
+                                                                nested: {
+                                                                    listitem: 'pl-2',
+                                                                },
+                                                                olDepth: [
+                                                                    'list-decimal pl-2',
+                                                                    'list-decimal',
+                                                                    'list-decimal',
+                                                                    'list-decimal',
+                                                                    'list-decimal',
+                                                                ],
+                                                                ul: 'list-disc pl-2',
+                                                                },
+                                                            },
+                                                            nodes: [ HorizontalRuleNode, CodeNode, MarkNode, HeadingNode, QuoteNode, LinkNode, ListNode, ListItemNode],
+                                                            editorState: () => {
+                                                                if (event.output) {
+                                                                    console.log(event.output);
+                                                                    return $convertFromMarkdownString(event.output, CustomTransformers);
+                                                                }
+                                                                return null;
+                                                            },
+                                                            onError: error => {
+                                                                console.log(error);
+                                                            },
+                                                            }
+                                                        }>
+                                                        <div className="flex flex-1">
+                                                            <RichTextPlugin
+                                                                contentEditable={<ContentEditable />}
+                                                                placeholder={() => <></>}
+                                                                ErrorBoundary={LexicalErrorBoundary}
+                                                            />
+                                                            <ListPlugin />
+                                                        </div>
+                                                    </LexicalComposer>
                                                 </div>
                                                 :
-                                                <p className="pl-2 text-sm font-medium text-gray-500" key={index}>Searching for <code className="text-xs">{event.output}</code></p>
+                                                <div className="flex items-center">
+                                                    <Icon icon="mage:robot-uwu" width={24} height={24}/>
+                                                    <p className="pl-2 text-sm font-medium text-gray-500" key={index}>Searching documentation for <code className="text-xs">{event.output}</code></p>
+                                                </div>
                                             }
                                         </div>
                                     ))
