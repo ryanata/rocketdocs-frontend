@@ -179,7 +179,7 @@ const DashboardPage: React.FC = () => {
                             <div className="flex justify-center">
                                 <Button
                                     size="lg" 
-                                    className="text-lg w-1/2 mb-10"
+                                    className="text-lg w-1/2 mb-10 cursor-pointer"
                                     onClick={() => {
                                         const urlType = isRepoUrl(githubFileUrl);
                                         if (urlType === "repo") {
@@ -236,22 +236,10 @@ const DashboardPage: React.FC = () => {
                 </div>
                 {/* Line seperator */}
                 <div className="flex flex-col">
-                    <div style={{flex: 1}}/>
-                    <div className="w-[2px] bg-slate-300" style={{flex: 7}}></div>
-                    <div style={{flex: 1}}/>
                 </div>
                 {/* Right Section */}
                 <div className="flex justify-center" style={{flex: 4}}>
-                    <div className="flex flex-col w-9/12">
-                        <div style={{flex: 1}}/>
-                        <div className="flex flex-col items-center justify-between" style={{flex: 7}}>
-                            <p className="text-xl font-light mt-2">
-                                Want to write your own documentation? You can start from scratch with our powerful documentation 
-                            </p>
-                            <Button variant="outline" size="lg" className="text-lg w-1/2 mb-[9px] overflow-hidden whitespace-nowrap overflow-ellipsis">Start From Scratch</Button>
-                        </div>
-                        <div style={{flex: 1}}/>
-                    </div>
+                   
                 </div>
             </div>
             {/* My Docs */}
