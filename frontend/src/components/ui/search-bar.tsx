@@ -74,12 +74,6 @@ const SearchBar = () => {
     const user = auth.currentUser;
     const queryClient = useQueryClient();
 
-    const parseImpropertData = (data: string) => {
-        const action = data.split("'action': '")[1].split("',")[0];
-        const output = data.split("'output': ")[1].split("}")[0];
-        return {action, output}
-    }
-
     const handleTooltipTriggerClick = () => {
         const baseUrl = process.env.NODE_ENV === 'development' ? window.location.origin : 'https://notebites.app';
         const url = new URL(`${baseUrl}/repos/${repoId}/chat`);
@@ -94,7 +88,7 @@ const SearchBar = () => {
             if (!event) {
                 eventSource.close();
             }
-            setEvents(prevEvents => [...prevEvents, parseImpropertData(event.data)]);
+            setEvents(prevEvents => [...prevEvents, JSON.parse(event.data)]);
         };
     
         eventSource.onerror = (error) => {
@@ -259,7 +253,7 @@ const SearchBar = () => {
                             <div className="px-4">
                                 {
                                     events.map((event, index) => (
-                                        <div>
+                                        <div key={index}>
                                             {event.action === "Finish" ?
                                                 <div className="flex gap-2 mt-2 font-medium">
                                                     <Icon icon="mage:robot-happy" width={40} height={40}/>
@@ -332,7 +326,7 @@ const SearchBar = () => {
                                                 :
                                                 <div className="flex items-center">
                                                     <Icon icon="mage:robot-uwu" width={24} height={24}/>
-                                                    <p className="pl-2 text-sm font-medium text-gray-500" key={index}>Searching documentation for <code className="text-xs">{event.output}</code></p>
+                                                    <p className="pl-2 text-sm font-medium text-gray-500">Searching documentation for <code className="text-xs">{event.output}</code></p>
                                                 </div>
                                             }
                                         </div>
