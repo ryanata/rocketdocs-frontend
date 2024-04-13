@@ -25,6 +25,7 @@ import { Outlet } from 'react-router-dom';
 
 const DocumentationPageContainer: React.FC = () => {
     const { repoId, fileId } = useParams<{ repoId?: string, fileId: string }>();
+    const [totalFiles, setTotalFiles] = useState(0);
     const { setToken } = useContext(DocumentationContext);
     const navigate = useNavigate();
     const auth = getAuth();
@@ -43,6 +44,22 @@ const DocumentationPageContainer: React.FC = () => {
             const response = await fetchDoc(fileId || '', token || '');
             return response;
         }
+    };
+
+    const countCompletedFiles = (tree: any[]): number => {
+        return tree.reduce((count, node) => {
+          const increment = node.completion_status === 'COMPLETED' ? 1 : 0;
+          const childrenCount: number = node.children.length > 0 ? countCompletedFiles(node.children) : 0;
+          return count + increment + childrenCount;
+        }, 0);
+    };
+    
+    const countTotalFiles = (tree: any[]): number => {
+        return tree.reduce((count, node) => {
+          const increment = 1;
+          const childrenCount: number = node.children.length > 0 ? countTotalFiles(node.children) : 0;
+          return count + increment + childrenCount;
+        }, 0);
     };
 
     const { data: doc, error, isLoading, refetch } = useQuery(
@@ -81,11 +98,25 @@ const DocumentationPageContainer: React.FC = () => {
     }
 
     if (isLoading || !isReady()) {
+        let completed = 0;
+        if (!isLoading && doc.repo) {
+            if (totalFiles === 0) {
+                setTotalFiles(countTotalFiles(doc.repo.tree));
+            }
+            completed = countCompletedFiles(doc.repo.tree);
+        }
         return (
             <div className="flex justify-center items-center h-screen">
                 <div className='flex flex-col justify-center items-center gap-3'>
                     <LoadingSpinner />
-                    <p>{isLoading ? "Loading..." : "Generating documentation..."}</p>
+                    {isLoading ? 
+                    <p>Loading...</p>
+                    :
+                    <>
+                        <p>Generating documentation...</p>
+                        <p>{completed}/{totalFiles} pages generated</p>
+                    </>
+                    }
                 </div>
             </div>
         )
